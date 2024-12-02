@@ -16,6 +16,17 @@ class SparqlManager:
             print(f"Erreur lors de l'exécution de la requête: {str(e)}")
             return []
     
+    def get_manufacturers_suggestions(self, query):
+        if not query:
+            return []
+        query = self.queries.get_manufacturers_suggestions(query)
+        results = self.execute_query(query)
+        return [result["name"]["value"] for result in results]
+    
+    def get_car_models(self, brand):
+        query = self.queries.get_car_models(brand)
+        return self.execute_query(query)
+    
     def search_cars(self, brand=None, year=None, engine_type=None):
         if brand and not year:
             query = self.queries.search_cars_by_brand(brand)

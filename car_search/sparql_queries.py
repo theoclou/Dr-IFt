@@ -9,6 +9,40 @@ class CarQueries:
             PREFIX yago: <http://dbpedia.org/class/yago/>
         """
     
+    def get_manufacturers_suggestions(self, query):
+        return f"""
+            {self.prefix}
+            SELECT DISTINCT ?name
+            WHERE {{
+                ?manufacturer rdf:type dbo:Company ;
+                            dbo:industry dbr:Automotive_industry ;
+                            rdfs:label ?name .
+                FILTER(LANG(?name) = 'en')
+                FILTER(REGEX(?name, "{query}", "i"))
+            }}
+            ORDER BY ?name
+            LIMIT 10
+        """
+    
+    def get_car_models(self, brand):
+        return f"""
+            {self.prefix}
+            SELECT DISTINCT ?car ?name ?year ?engine
+            WHERE {{
+                ?car rdf:type dbo:Automobile ;
+                     rdfs:label ?name ;
+                     dbo:manufacturer ?manufacturer .
+                ?manufacturer rdfs:label ?manufacturerName .
+                OPTIONAL {{ ?car dbp:productionStartYear ?year }}
+                OPTIONAL {{ ?car dbp:engine ?engine }}
+                FILTER(LANG(?name) = 'en')
+                FILTER(LANG(?manufacturerName) = 'en')
+                FILTER(REGEX(?manufacturerName, "{brand}", "i"))
+            }}
+            ORDER BY DESC(?year)
+            LIMIT 100
+        """
+
     def search_cars_by_brand(self, brand):
         return f"""
             {self.prefix}
