@@ -4,16 +4,53 @@ from car_search.sparql_manager import SparqlManager
 # Initialize SPARQL manager (global for reuse)
 manager = SparqlManager()
 
+st.set_page_config(
+    page_title="Moteur de recherche automobile",  # Titre de la page
+    page_icon="🚗",  # Icône de la page
+    #layout="wide",  # Utilise la mise en page large pour maximiser l'espace
+    initial_sidebar_state="expanded",  # État initial de la barre latérale (ouverte)
+    menu_items={
+        'Get Help': 'https://www.streamlit.io',
+        'About': 'https://www.streamlit.io/about',
+    }
+)
+
+# Function to get suggestions dynamically
+def get_live_suggestions(query):
+    if query:
+        return manager.get_manufacturers_suggestions(query)
+    return []
+
 # Define page functions
 def home():
-    st.title("Moteur de recherche automobile")
+    # Centrer l'image et la rendre plus petite
+    st.markdown(
+        """
+        <div style="display: flex; justify-content: center;">
+            <img src="https://png.pngtree.com/png-vector/20220617/ourmid/pngtree-auto-car-logo-template-png-image_5181062.png" width="400">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    st.title("Bienvenue sur AutoSearch")
+
+    # Contenu de la page
+    st.write("Cette application vous permet de rechercher des constructeurs automobiles et leurs modèles.")
 
     # Barre de recherche avec autocomplétion
-    query = st.text_input("Rechercher un constructeur")
+    query = st.text_input(
+        "Rechercher un constructeur",
+        key="query",
+        placeholder="Entrez un constructeur...",
+        label_visibility="collapsed",  # Hide the label for a cleaner UI
+        help="Tapez un constructeur pour voir des suggestions.",
+        autocomplete="off",  # Disable browser autocomplete to prevent interference
+    )
 
     if query:
         try:
-            suggestions = manager.get_manufacturers_suggestions(query)
+            # Get live suggestions based on the query
+            suggestions = get_live_suggestions(query)
             if suggestions:
                 selected_manufacturer = st.selectbox(
                     "Constructeurs :",
@@ -28,7 +65,7 @@ def home():
                         st.session_state.page = "Modèles"
                         st.session_state.manufacturer = selected_manufacturer
                         st.rerun()
-                        
+
         except Exception as e:
             st.error(f"Erreur lors de la recherche des suggestions: {str(e)}")
 
@@ -40,10 +77,6 @@ def models():
     if manufacturer:
         try:
             cars = manager.get_car_models(manufacturer)
-
-            # Affichage des données brutes pour débogage
-            #st.write("### Données brutes retournées :")
-            #st.json(cars)  # Affiche les données sous forme JSON
 
             if cars:
                 st.write(f"### Modèles {manufacturer}")
