@@ -52,10 +52,12 @@ def models():
                 for car in cars:
                     with st.expander(car['name']['value']):
                         # Informations de base
-                        if 'year1' in car:
-                            st.write(f"Année : {car['year1']['value']}")
-                        if 'engine' in car:
-                            st.write(f"Moteur : {car['engine']['value']}")
+                        if 'year' in car:
+                            st.write(f"Released year : {car['year']['value']}")
+                        if 'description' in car:
+                            st.write(f"Description : {car['description']['value']}")
+                        if 'image' in car:
+                            st.image(car['image']['value'], use_container_width=True)
                         # Lien vers la page DBpedia
                         st.write(f"[Voir sur DBpedia]({car['car']['value']})")
             else:

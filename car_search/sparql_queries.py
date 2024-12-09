@@ -27,26 +27,22 @@ class CarQueries:
     def get_car_models(self, brand):
         return f"""
             {self.prefix}
-           SELECT ?car ?name ?year1 ?year2
+           SELECT ?car ?name ?year ?description ?image
             WHERE {{
             ?car dbo:manufacturer dbr:{brand} ;
                 a dbo:Automobile ;
-                rdfs:label ?name .
+                rdfs:label ?name ;
+                dbo:abstract ?description ;
+                dbo:thumbnail ?image .         
 
             OPTIONAL {{
                 ?car dbo:productionStartYear ?year .
                 FILTER (YEAR(?year) > 1800)
             }}
 
-            OPTIONAL {{
-                ?car dbp:production ?year2 .
-                FILTER (xsd:integer(?year2) > 1800)
+            FILTER (lang(?name) = "en" && lang(?description) = "en")
             }}
-
-            BIND(IF(BOUND(?year), YEAR(?year), "") AS ?year1)
-
-            FILTER (lang(?name) = "fr")
-            }}
+            ORDER BY DESC(?year)
         """
 
     def search_cars_by_brand(self, brand):
