@@ -21,10 +21,20 @@ class SparqlManager:
             return []
         query = self.queries.get_manufacturers_suggestions(query)
         results = self.execute_query(query)
-        return [result["name"]["value"] for result in results]
+        suggestions = [result["name"]["value"] for result in results]
+        
+        # Filtrer les suggestions qui retournent des modèles
+        valid_suggestions = []
+        for manufacturer in suggestions:
+            print(f"Vérification des modèles pour {manufacturer}")
+            car_models = self.get_car_models(manufacturer.replace(" ", "_"))  # Adapter pour DBpedia
+            if car_models:  # Si des modèles sont retournés
+                valid_suggestions.append(manufacturer)
+        
+        return valid_suggestions
     
     def get_car_models(self, brand):
-        query = self.queries.get_car_models(brand)
+        query = self.queries.get_car_models(brand.replace(" ", "_"))  # Adapter pour DBpedia    
         return self.execute_query(query)
     
     def search_cars(self, brand=None, year=None, engine_type=None):
