@@ -129,3 +129,95 @@ class CarQueries:
             ORDER BY ?year
             LIMIT 20
         """
+        
+    def search_parent_group_of_car(self,brand):
+        return f"""
+            {self.prefix}
+        SELECT DISTINCT ?car ?name ?manufacturer ?parentCompany 
+        WHERE {{
+            ?car rdf:type dbo:MeanOfTransportation ;
+            rdf:type dbo:Automobile ;
+            rdfs:label ?name ;
+            dbo:manufacturer ?manufacturer .
+            OPTIONAL {{ ?manufacturer dbo:parentCompany ?parentCompany . }}
+            
+            FILTER(LANG(?name) = 'en')
+            FILTER NOT EXISTS {{
+                ?parentCompany dbo:parentCompany ?grandParentCompany . 
+            }}
+            FILTER(REGEX(STR(?name), '{brand}', 'i'))
+            }}
+            LIMIT 1
+            
+        """ 
+        
+    def search_parent_group_of_manufacturer(self,manufacturer):
+        return f"""
+            {self.prefix}
+        SELECT DISTINCT ?manufacturer ?parentCompany 
+        WHERE {{
+            ?car rdf:type dbo:MeanOfTransportation ;
+            rdf:type dbo:Automobile ;
+            dbo:manufacturer ?manufacturer .
+            OPTIONAL {{ ?manufacturer dbo:parentCompany ?parentCompany . }}
+            FILTER NOT EXISTS {{
+                ?parentCompany dbo:parentCompany ?grandParentCompany . 
+            }}
+            FILTER(REGEX(STR(?manufacturer), '{manufacturer}', 'i'))
+            }}
+            LIMIT 20
+        """ 
+    def search_country_of_group(self , group):
+        return f"""
+            {self.prefix}
+        SELECT DISTINCT ?parentCompany ?Country 
+        WHERE {{
+            ?car rdf:type dbo:MeanOfTransportation ;
+            rdf:type dbo:Automobile ;
+            dbo:manufacturer ?manufacturer .
+            OPTIONAL {{ ?manufacturer dbo:parentCompany ?parentCompany . }}
+            OPTIONAL {{ ?parentCompany dbp:locationCountry ?Country . }}
+            FILTER NOT EXISTS {{
+                ?parentCompany dbo:parentCompany ?grandParentCompany . 
+            }}
+            FILTER(REGEX(STR(?parentCompany), '{group}', 'i'))
+            }}
+            LIMIT 20
+        """ 
+    
+    def search_founding_date(self ,group):
+         return f"""
+            {self.prefix}
+        SELECT DISTINCT ?parentCompany ?foundingdate 
+        WHERE {{
+            ?car rdf:type dbo:MeanOfTransportation ;
+            rdf:type dbo:Automobile ;
+            dbo:manufacturer ?manufacturer .
+            OPTIONAL {{ ?manufacturer dbo:parentCompany ?parentCompany . }}
+            FILTER NOT EXISTS {{
+                ?parentCompany dbo:parentCompany ?grandParentCompany . 
+            }}
+            OPTIONAL {{ ?parentCompany dbo:foundingDate ?foundingdate . }}
+            FILTER(REGEX(STR(?parentCompany), '{group}', 'i'))
+            }}
+            LIMIT 20
+        """ 
+    def search_founder(self , group):
+        return f"""
+            {self.prefix}
+        SELECT DISTINCT ?parentCompany ?founder
+        WHERE {{
+            ?car rdf:type dbo:MeanOfTransportation ;
+            rdf:type dbo:Automobile ;
+            dbo:manufacturer ?manufacturer .
+            OPTIONAL {{ ?manufacturer dbo:parentCompany ?parentCompany . }}
+            FILTER NOT EXISTS {{
+                ?parentCompany dbo:parentCompany ?grandParentCompany . 
+            }}
+            OPTIONAL {{ ?parentCompany dbo:foundedBy ?founder . }}
+            FILTER(REGEX(STR(?parentCompany), '{group}', 'i'))
+            }}
+            LIMIT 20
+        """ 
+    
+    
