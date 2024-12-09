@@ -6,3 +6,6 @@ plotly
 scikit-learn
 sparqlwrapper
 plotly
+requests
+beautifulsoup4
+wikipedia-api
