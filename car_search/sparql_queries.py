@@ -17,8 +17,15 @@ class CarQueries:
                 ?manufacturer rdf:type dbo:Company ;
                             dbo:industry dbr:Automotive_industry ;
                             rdfs:label ?name .
+                
                 FILTER(LANG(?name) = 'en')
-                FILTER(REGEX(?name, "{query}", "i"))
+                FILTER(REGEX(?name, "^{query}", "i"))
+                
+                # Vérification que le constructeur a au moins un modèle
+                FILTER EXISTS {{
+                    ?car dbo:manufacturer ?manufacturer ;
+                        a dbo:Automobile .
+                }}
             }}
             ORDER BY ?name
             LIMIT 10
