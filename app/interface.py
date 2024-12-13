@@ -67,10 +67,28 @@ def models():
     else:
         st.warning("Aucune marque sélectionnée. Retournez à l'accueil pour rechercher une marque.")
 
+
+def brands():
+    st.title("Marques automobiles")
+
+    manufacturer = st.session_state.get("manufacturer", None)
+    if manufacturer:
+        st.write(f"### Marque sélectionnée : {manufacturer}")
+        st.write("Retournez à la page d'accueil pour changer de marque.")
+        brand = manager.get_brand_details(manufacturer)
+        if brand:
+            # Affichage des données brutes 
+            st.write("### Données brutes retournées :")
+            st.json(brand)
+        else:
+            st.warning("Aucun résultat trouvé")
+
+
 # Manage navigation between pages
 PAGES = {
     "Accueil": home,
-    "Modèles": models
+    "Modèles": models,
+    "Marques": brands,
 }
 
 def main():
@@ -90,6 +108,9 @@ def main():
         st.rerun()
     if st.sidebar.button("Modèles"):
         st.session_state.page = "Modèles"
+        st.rerun()
+    if st.sidebar.button("Marques"):
+        st.session_state.page = "Marques"
         st.rerun()
 
 # Entrypoint
