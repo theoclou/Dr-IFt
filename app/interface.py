@@ -71,17 +71,30 @@ def models():
 def brands():
     st.title("Marques automobiles")
 
+
+
+
     manufacturer = st.session_state.get("manufacturer", None)
     if manufacturer:
+
+        #[{"company":{"type":"uri","value":"http://dbpedia.org/resource/Cadillac"},"cleanName":{"type":"literal","value":"Cadillac"},"cleanFoundingDate":{"type":"literal","value":"1902-08-22"},"description":{"type":"literal","value":"The Cadillac Motor Car Division (/ˈkædɪlæk/) is a division of the American automobile manufacturer General Motors (GM) that designs and builds luxury vehicles. Its major markets are the United States, Canada, and China. Cadillac models are distributed in 34 additional markets worldwide. Cadillac automobiles are at the top of the luxury field within the United States. In 2019, Cadillac sold 390,458 vehicles worldwide, a record for the brand."},"website":{"type":"literal","value":"https://www.cadillac.com/%7Ccadillac.com"},"longDescription":{"type":"literal","value":"The Cadillac Motor Car Division (/ˈkædɪlæk/) is a division of the American automobile manufacturer General Motors (GM) that designs and builds luxury vehicles. Its major markets are the United States, Canada, and China. Cadillac models are distributed in 34 additional markets worldwide. Cadillac automobiles are at the top of the luxury field within the United States. In 2019, Cadillac sold 390,458 vehicles worldwide, a record for the brand. Cadillac is among the first automotive brands in the world, fourth in the United States only to Autocar Company (1897) and fellow GM marques Oldsmobile (1897) and Buick (1899). It was named after Antoine de la Mothe Cadillac (1658–1730), who founded Detroit, Michigan. The Cadillac crest is based on his coat of arms. By the time General Motors purchased the company in 1909, Cadillac had already established itself as one of America's premier luxury car makers. The complete interchangeability of its precision parts had allowed it to lay the foundation for the modern mass production of automobiles. It was at the forefront of technological advances, introducing full electrical systems, the clashless manual transmission and the steel roof. The brand developed three engines, with its V8 setting the standard for the American automotive industry. Cadillac had the first U.S. car to win the Royal Automobile Club of the United Kingdom's Dewar Trophy by successfully demonstrating the interchangeability of its component parts during a reliability test in 1908; this spawned the firm's slogan \"Standard of the World\". It won the trophy again in 1912 for incorporating electric starting and lighting in a production automobile."}}] exemple json
         st.write(f"### Marque sélectionnée : {manufacturer}")
         st.write("Retournez à la page d'accueil pour changer de marque.")
         brand = manager.get_brand_details(manufacturer)
         if brand:
             # Affichage des données brutes 
+            st.markdown(f'## {brand[0]["cleanName"]["value"]}') 
+            st.write(f"**Date de fondation :** {brand[0]['cleanFoundingDate']['value']}")
+            st.write(f"**Site web :** {brand[0]['website']['value']}")
+            st.write(f"**Description :** {brand[0]['description']['value']}")
+            st.write(f"**Description longue :** {brand[0]['longDescription']['value']}")
+
             st.write("### Données brutes retournées :")
             st.json(brand)
         else:
             st.warning("Aucun résultat trouvé")
+    else:
+        st.warning("Aucune marque sélectionnée. Retournez à l'accueil pour rechercher une marque.")
 
 
 # Manage navigation between pages
@@ -96,7 +109,7 @@ def main():
     if "page" not in st.session_state:
         st.session_state.page = "Accueil"
     if "manufacturer" not in st.session_state:
-        st.session_state.manufacturer = None
+        st.session_state.manufacturer = "Cadillac" #//!\ A modifier : mettre en None après tests
 
     # Navigation basée sur l'état actuel
     PAGES[st.session_state.page]()

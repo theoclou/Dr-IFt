@@ -56,5 +56,5 @@ class SparqlManager:
         return self.execute_query(query)
     
     def get_brand_details(self, brand_uri):
-        query = self.queries.get_brand_details(brand_uri)
+        query = self.brand_queries.get_brand_details_2(brand_uri)
         return self.execute_query(query)

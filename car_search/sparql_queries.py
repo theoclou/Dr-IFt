@@ -159,3 +159,48 @@ class BrandQueries:
                     }}
                 GROUP BY ?company ?foundingDate ?comment ?site ?netIncome ?operatingIncome ?revenue ?longDescription
                 """
+    
+    def get_brand_details_2(self, brand):
+        return f"""
+                {self.prefix}
+                SELECT 
+                ?company 
+                (STR(MIN(?name)) AS ?cleanName) 
+                (STR(?foundingDate) AS ?cleanFoundingDate)
+                (GROUP_CONCAT(DISTINCT REPLACE(STR(?founder), "^.*[/#]", ""); separator=", ") AS ?cleanFounder)
+                (GROUP_CONCAT(DISTINCT ?location; separator=", ") AS ?cleanLocation)
+                (STR(?comment) AS ?description) 
+                (STR(?site) AS ?website) 
+                (GROUP_CONCAT(DISTINCT REPLACE(STR(?product), "^.*[/#]", ""); separator=", ") AS ?cleanProduct)
+                ?parentCompany
+                (COALESCE(GROUP_CONCAT(DISTINCT REPLACE(STR(?childCompany), "^.*[/#]", ""); separator=", "), "") AS ?childCompanies)
+                (STR(?netIncome) AS ?netIncome) 
+                (STR(?operatingIncome) AS ?operatingIncome) 
+                (STR(?revenue) AS ?revenue) 
+                (STR(?longDescription) AS ?longDescription) 
+                WHERE {{
+                VALUES ?company {{ dbr:{brand} }}
+                ?company foaf:name ?name .
+                OPTIONAL {{ ?company dbo:foundingDate ?foundingDate . }}
+                OPTIONAL {{ ?company rdfs:comment ?comment .
+                            FILTER(lang(?comment) = "en") }}
+                OPTIONAL {{ ?company foaf:homepage ?site . }}
+                OPTIONAL {{ ?company dbo:netIncome ?netIncome . }}
+                OPTIONAL {{ ?company dbo:operatingIncome ?operatingIncome . }}
+                OPTIONAL {{ ?company dbo:revenue ?revenue . }}
+                OPTIONAL {{ ?company dbo:abstract ?longDescription .
+                    FILTER(lang(?longDescription) = "en")}}
+                OPTIONAL {{ ?company dbo:foundedBy ?founder . }}
+                OPTIONAL {{ ?company dbp:location ?location . }}
+                OPTIONAL {{ ?company dbo:product ?product . }}
+                OPTIONAL {{ ?company dbo:parentCompany ?parentCompany . }}
+                OPTIONAL {{
+                    SELECT ?company (GROUP_CONCAT(DISTINCT REPLACE(STR(?childCompany), "^.*[/#]", ""); separator=", ") AS ?childCompany)
+                    WHERE {{
+                    ?childCompany dbo:parentCompany ?company .
+                    }}
+                    GROUP BY ?company
+                }}
+                }}
+                GROUP BY ?company ?foundingDate ?comment ?site ?netIncome ?operatingIncome ?revenue ?longDescription ?parentCompany
+                """
