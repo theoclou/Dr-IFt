@@ -26,7 +26,7 @@ def get_live_suggestions(query):
 def home():
     # Create two columns for layout
     col1, col2 = st.columns([2, 0.5])
-    
+
     with col1:
         st.markdown("""
         <h1>Bienvenue sur AutoSearch</h1>
@@ -37,8 +37,6 @@ def home():
     st.markdown("## Nos Fonctionnalités")
     st.markdown("### Recherchez des constructeurs de voitures spécifiques")
 
-
-    
     with col2:
         # Centered image with reduced size
         st.image("https://png.pngtree.com/png-vector/20220617/ourmid/pngtree-auto-car-logo-template-png-image_5181062.png", width=250)
@@ -65,6 +63,7 @@ def home():
                     st.write(f"**Modèles de {selected_manufacturer}:**")
                     if st.button("Voir les modèles"):
                         st.session_state.page = "Modèles"
+                        st.session_state.search_performed = True
                         st.session_state.manufacturer = selected_manufacturer
                         st.rerun()
         except Exception as e:
@@ -75,8 +74,8 @@ def home():
     # Random interesting section
     st.markdown("### 🎲 Constructeur")
 
-    # Use session state to persist the random manufacturer
-    if 'random_manufacturer' not in st.session_state:
+    # Initialize random manufacturer if not already set
+    if "random_manufacturer" not in st.session_state:
         try:
             random_letter = random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
             random_manufacturers = manager.get_manufacturers_suggestions(random_letter)
@@ -84,30 +83,37 @@ def home():
         except Exception as e:
             st.warning("Impossible de générer un constructeur aléatoire.")
             st.session_state.random_manufacturer = None
+
     # Display the random manufacturer if available
     if st.session_state.random_manufacturer:
         st.write(f"Constructeur : **{st.session_state.random_manufacturer}**")
-        
+
         # Button to view models of the random manufacturer
         if st.button("Voir les modèles du jour"):
             st.session_state.page = "Modèles"
+            st.session_state.search_performed = True
             st.session_state.manufacturer = st.session_state.random_manufacturer
             st.rerun()
-            
+
     st.markdown("<hr>", unsafe_allow_html=True)
     st.markdown("### ♫ Devinette Automobile")
-    devinettes = [
-        {"question": "Quel constructeur a inventé la première voiture à essence ?", 
-        "reponses": ["Benz", "Mercedes", "Daimler", "Mercedes-Benz"]},
-        {"question": "Quel constructeur a produit la première voiture de série ?",
-        "reponses": ["Ford"]},
-        {"question": "Quand a été fondé le constructeur japonais Toyota ?",
-         "reponses": ["1937"]},
-        {"question": "A quelle date a été crée la première voiture/engin électrique ?",
-            "reponses": ["1834"]}
-        # Autres devinettes...
-    ]
-    devinette = random.choice(devinettes)
+
+    # Initialize question if not already set
+    if "question" not in st.session_state:
+        devinettes = [
+            {"question": "Quel constructeur a inventé la première voiture à essence ?",
+            "reponses": ["Benz", "Mercedes", "Daimler", "Mercedes-Benz"]},
+            {"question": "Quel constructeur a produit la première voiture de série ?",
+            "reponses": ["Ford"]},
+            {"question": "Quand a été fondé le constructeur japonais Toyota ?",
+             "reponses": ["1937"]},
+            {"question": "A quelle date a été crée la première voiture/engin électrique ?",
+                "reponses": ["1834"]}
+            # Autres devinettes...
+        ]
+        st.session_state.question = random.choice(devinettes)
+
+    devinette = st.session_state.question
     st.write(devinette["question"])
     reponse = st.text_input("Votre réponse :", key="reponse", placeholder="Entrez votre réponse", autocomplete="off")
     if st.button("Vérifier"):
@@ -116,30 +122,32 @@ def home():
         else:
             st.error("Pas tout à fait. Réessayez !")
 
-    citations = [
-    "L'automobile est la passion qui transforme un trajet en aventure.",
-    "Chaque voiture raconte une histoire, chaque marque une légende.",
-    "L'innovation automobile, c'est repousser les limites du possible."
-    ]
+    # Initialize citation if not already set
+    if "citation" not in st.session_state:
+        citations = [
+            "L'automobile est la passion qui transforme un trajet en aventure.",
+            "Chaque voiture raconte une histoire, chaque marque une légende.",
+            "L'innovation automobile, c'est repousser les limites du possible."
+        ]
+        st.session_state.citation = random.choice(citations)
 
     st.markdown("<hr>", unsafe_allow_html=True)
     st.markdown("### 💬 Citation")
-    st.markdown(random.choice(citations))
-
+    st.markdown(st.session_state.citation)
 
 def about():
     st.title("À propos de AutoSearch")
-    
+
     st.markdown("""
     ## Notre équipe
-    
+
     ### Développeurs
     - **Audrey SOULET**
     - **Abderrahlane BOUZIANE**
     - **Noam CATHERINE**
     - **Quentin MARIAT**
     - **Théo CLOUSCARD**
-                
+
     ## Notre projet
     AutoSearch est un moteur de recherche automobile innovant qui permet aux utilisateurs de découvrir et explorer différents constructeurs et modèles de véhicules en détail.
 
@@ -147,11 +155,10 @@ def about():
     - Streamlit
     - SPARQL
     - DBpedia
-                
-    ### Note 
+
+    ### Note
     Ce projet a été réalisé dans le cadre d'un projet scolaire à l'INSA de Lyon afin de mettre en pratique nos compétences liées au web sémantique et aux technologies web.
     """)
-
 
 def models():
     st.title("Modèles automobiles")
@@ -196,13 +203,14 @@ PAGES = {
     "Statistiques": stats
 }
 
-
 def main():
     # Initialisation de l'état de navigation
     if "page" not in st.session_state:
         st.session_state.page = "Accueil"
     if "manufacturer" not in st.session_state:
         st.session_state.manufacturer = None
+    if "search_performed" not in st.session_state:
+        st.session_state.search_performed = False
 
     # Navigation basée sur l'état actuel
     PAGES[st.session_state.page]()
@@ -212,7 +220,7 @@ def main():
     if st.sidebar.button("Accueil"):
         st.session_state.page = "Accueil"
         st.rerun()
-    if st.sidebar.button("Modèles"):
+    if st.sidebar.button("Modèles", disabled=not st.session_state.get('search_performed', False)):
         st.session_state.page = "Modèles"
         st.rerun()
     if st.sidebar.button("Statistiques"):

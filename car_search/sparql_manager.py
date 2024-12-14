@@ -22,26 +22,17 @@ class SparqlManager:
         query = self.queries.get_manufacturers_suggestions(query)
         results = self.execute_query(query)
         suggestions = [result["name"]["value"] for result in results]
+        
     
         
         return suggestions
     
     def get_car_models(self, brand):
-        query = self.queries.get_car_models(brand.replace(" ", "_"))  # Adapter pour DBpedia    
-        return self.execute_query(query)
-    
-    def search_cars(self, brand=None, year=None, engine_type=None):
-        if brand and not year:
-            query = self.queries.search_cars_by_brand(brand)
-        elif year and not brand:
-            query = self.queries.search_cars_by_year(year)
-        else:
-            query = self.queries.search_cars_advanced(
-                manufacturer=brand,
-                min_year=year,
-                engine_type=engine_type
-            )
-        return self.execute_query(query)
+        print("Brand:", brand)
+        print("Formatted Brand:", brand.replace(" ", "_"))
+        query = self.queries.get_car_models(brand.replace(" ", "_"))
+        result = self.execute_query(query)
+        return result
     
     def get_car_details(self, car_uri):
         query = self.queries.get_car_details(car_uri)
