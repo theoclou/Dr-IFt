@@ -1,5 +1,6 @@
 import streamlit as st
 from car_search.sparql_manager import SparqlManager
+import random
 
 # Initialize SPARQL manager (global for reuse)
 manager = SparqlManager()
@@ -23,28 +24,31 @@ def get_live_suggestions(query):
 
 # Define page functions
 def home():
-    # Centrer l'image et la rendre plus petite
-    st.markdown(
-        """
-        <div style="display: flex; justify-content: center;">
-            <img src="https://png.pngtree.com/png-vector/20220617/ourmid/pngtree-auto-car-logo-template-png-image_5181062.png" width="400">
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-    st.title("Bienvenue sur AutoSearch")
+    # Create two columns for layout
+    col1, col2 = st.columns([2, 0.5])
+    
+    with col1:
+        st.markdown("""
+        <h1>Bienvenue sur AutoSearch</h1>
+        <p><em>Découvrez le monde automobile avec notre moteur de recherche intelligent</em></p>
+        <hr>
+        """, unsafe_allow_html=True)
 
-    # Contenu de la page
-    st.write("Cette application vous permet de rechercher des constructeurs automobiles et leurs modèles.")
+    st.markdown("## Nos Fonctionnalités")
+    st.markdown("### Recherchez des constructeurs de voitures spécifiques")
 
-    # Barre de recherche avec autocomplétion
+
+    
+    with col2:
+        # Centered image with reduced size
+        st.image("https://png.pngtree.com/png-vector/20220617/ourmid/pngtree-auto-car-logo-template-png-image_5181062.png", width=250)
+
     query = st.text_input(
-        "Rechercher un constructeur",
+        "Votre choix :",
         key="query",
         placeholder="Entrez un constructeur...",
-        label_visibility="collapsed",  # Hide the label for a cleaner UI
         help="Tapez un constructeur pour voir des suggestions.",
-        autocomplete="off",  # Disable browser autocomplete to prevent interference
+        autocomplete="off",
     )
 
     if query:
@@ -58,16 +62,96 @@ def home():
                     key="manufacturer_suggestions"
                 )
                 if selected_manufacturer:
-                    # Lien vers la page des modèles
                     st.write(f"**Modèles de {selected_manufacturer}:**")
                     if st.button("Voir les modèles"):
-                        # Mettez à jour l'état et redirigez via session_state
                         st.session_state.page = "Modèles"
                         st.session_state.manufacturer = selected_manufacturer
                         st.rerun()
-
         except Exception as e:
             st.error(f"Erreur lors de la recherche des suggestions: {str(e)}")
+
+    st.markdown("<hr style='margin: 10px 0;'>", unsafe_allow_html=True)
+    st.markdown("## Nos choix du jour")
+    # Random interesting section
+    st.markdown("### 🎲 Constructeur")
+
+    # Use session state to persist the random manufacturer
+    if 'random_manufacturer' not in st.session_state:
+        try:
+            random_letter = random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+            random_manufacturers = manager.get_manufacturers_suggestions(random_letter)
+            st.session_state.random_manufacturer = random.choice(random_manufacturers)
+        except Exception as e:
+            st.warning("Impossible de générer un constructeur aléatoire.")
+            st.session_state.random_manufacturer = None
+    # Display the random manufacturer if available
+    if st.session_state.random_manufacturer:
+        st.write(f"Constructeur : **{st.session_state.random_manufacturer}**")
+        
+        # Button to view models of the random manufacturer
+        if st.button("Voir les modèles du jour"):
+            st.session_state.page = "Modèles"
+            st.session_state.manufacturer = st.session_state.random_manufacturer
+            st.rerun()
+            
+    st.markdown("<hr>", unsafe_allow_html=True)
+    st.markdown("### ♫ Devinette Automobile")
+    devinettes = [
+        {"question": "Quel constructeur a inventé la première voiture à essence ?", 
+        "reponses": ["Benz", "Mercedes", "Daimler", "Mercedes-Benz"]},
+        {"question": "Quel constructeur a produit la première voiture de série ?",
+        "reponses": ["Ford"]},
+        {"question": "Quand a été fondé le constructeur japonais Toyota ?",
+         "reponses": ["1937"]},
+        {"question": "A quelle date a été crée la première voiture/engin électrique ?",
+            "reponses": ["1834"]}
+        # Autres devinettes...
+    ]
+    devinette = random.choice(devinettes)
+    st.write(devinette["question"])
+    reponse = st.text_input("Votre réponse :", key="reponse", placeholder="Entrez votre réponse", autocomplete="off")
+    if st.button("Vérifier"):
+        if reponse.lower() in [r.lower() for r in devinette["reponses"]]:
+            st.success("Bravo ! Bonne réponse 🏆")
+        else:
+            st.error("Pas tout à fait. Réessayez !")
+
+    citations = [
+    "L'automobile est la passion qui transforme un trajet en aventure.",
+    "Chaque voiture raconte une histoire, chaque marque une légende.",
+    "L'innovation automobile, c'est repousser les limites du possible."
+    ]
+
+    st.markdown("<hr>", unsafe_allow_html=True)
+    st.markdown("### 💬 Citation")
+    st.markdown(random.choice(citations))
+
+
+def about():
+    st.title("À propos de AutoSearch")
+    
+    st.markdown("""
+    ## Notre équipe
+    
+    ### Développeurs
+    - **Audrey SOULET**
+    - **Abderrahlane BOUZIANE**
+    - **Noam CATHERINE**
+    - **Quentin MARIAT**
+    - **Théo CLOUSCARD**
+                
+    ## Notre projet
+    AutoSearch est un moteur de recherche automobile innovant qui permet aux utilisateurs de découvrir et explorer différents constructeurs et modèles de véhicules en détail.
+
+    ### Technologies/Ressources utilisées
+    - Streamlit
+    - SPARQL
+    - DBpedia
+                
+    ### Note 
+    Ce projet a été réalisé dans le cadre d'un projet scolaire à l'INSA de Lyon afin de mettre en pratique nos compétences liées au web sémantique et aux technologies web.
+    """)
+
 
 def models():
     st.title("Modèles automobiles")
@@ -100,11 +184,18 @@ def models():
     else:
         st.warning("Aucune marque sélectionnée. Retournez à l'accueil pour rechercher une marque.")
 
+def stats():
+    st.title("Statistiques")
+    st.write("Les statistiques seront affichées ici...")
+
 # Manage navigation between pages
 PAGES = {
     "Accueil": home,
-    "Modèles": models
+    "Modèles": models,
+    "About": about,
+    "Statistiques": stats
 }
+
 
 def main():
     # Initialisation de l'état de navigation
@@ -123,6 +214,12 @@ def main():
         st.rerun()
     if st.sidebar.button("Modèles"):
         st.session_state.page = "Modèles"
+        st.rerun()
+    if st.sidebar.button("Statistiques"):
+        st.session_state.page = "Statistiques"
+        st.rerun()
+    if st.sidebar.button("À propos"):
+        st.session_state.page = "About"
         st.rerun()
 
 # Entrypoint
