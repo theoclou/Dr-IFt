@@ -19,21 +19,66 @@ class SparqlManager:
     def get_manufacturers_suggestions(self, query):
         if not query:
             return []
-        query = self.queries.get_manufacturers_suggestions(query)
+        query = self.queries.get_manufacturers_suggestions(query.replace(" ", "_"))
         results = self.execute_query(query)
         suggestions = [result["name"]["value"] for result in results]
-        
-    
-        
         return suggestions
     
     def get_car_models(self, brand):
-        print("Brand:", brand)
-        print("Formatted Brand:", brand.replace(" ", "_"))
         query = self.queries.get_car_models(brand.replace(" ", "_"))
         result = self.execute_query(query)
         return result
     
     def get_car_details(self, car_uri):
-        query = self.queries.get_car_details(car_uri)
+        query = self.queries.get_car_details(car_uri.replace(" ", "_"))
         return self.execute_query(query)
+    
+    def get_total_manufacturers(self):
+        query = self.queries.get_total_manufacturers()
+        result = self.execute_query(query)
+        return result[0]["count"]["value"]
+        
+    def get_total_cars(self):
+        query = self.queries.get_total_cars()
+        result = self.execute_query(query)
+        return result[0]["count"]["value"]
+    
+    def get_top_manufacturers(self):
+        query = self.queries.get_top_manufacturers()
+        results = self.execute_query(query)
+        return results
+    
+    def get_top_engine_types(self):
+        query = self.queries.get_top_engine_types()
+        results = self.execute_query(query)
+        return results
+    
+    def get_top_fuel_types(self):
+        query = self.queries.get_fuel_types()
+        results = self.execute_query(query)
+        return results
+    
+    def get_car_by_production_decade_from1950_to2020(self):
+        query = self.queries.get_car_by_production_decade()
+        results = self.execute_query(query)
+        return results
+    
+    def get_manufacturers_by_country(self):
+        query = self.queries.get_manufacturers_by_country()
+        results = self.execute_query(query)
+        return results
+    
+    def get_best_carrosserie(self):
+        query = self.queries.get_best_carrosserie()
+        results = self.execute_query(query)
+        return results
+    
+    def get_class_car(self):
+        query = self.queries.get_class_car()
+        results = self.execute_query(query)
+        return results
+    
+    def get_company_turnover(self):
+        query = self.queries.get_company_turnover()
+        results = self.execute_query(query)
+        return results

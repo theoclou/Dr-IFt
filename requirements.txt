@@ -9,3 +9,6 @@ plotly
 requests
 beautifulsoup4
 wikipedia-api
+seaborn
+plotly
+altair

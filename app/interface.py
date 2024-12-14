@@ -1,6 +1,11 @@
 import streamlit as st
 from car_search.sparql_manager import SparqlManager
 import random
+import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly.express as px
+import altair as alt
+import pandas as pd
 
 # Initialize SPARQL manager (global for reuse)
 manager = SparqlManager()
@@ -16,13 +21,7 @@ st.set_page_config(
     }
 )
 
-# Function to get suggestions dynamically
-def get_live_suggestions(query):
-    if query:
-        return manager.get_manufacturers_suggestions(query)
-    return []
-
-# Define page functions
+# Page d'accueil
 def home():
     # Create two columns for layout
     col1, col2 = st.columns([2, 0.5])
@@ -52,7 +51,7 @@ def home():
     if query:
         try:
             # Get live suggestions based on the query
-            suggestions = get_live_suggestions(query)
+            suggestions = manager.get_manufacturers_suggestions(query)
             if suggestions:
                 selected_manufacturer = st.selectbox(
                     "Constructeurs :",
@@ -135,6 +134,8 @@ def home():
     st.markdown("### 💬 Citation")
     st.markdown(st.session_state.citation)
 
+
+# Page à propos
 def about():
     st.title("À propos de AutoSearch")
 
@@ -160,6 +161,8 @@ def about():
     Ce projet a été réalisé dans le cadre d'un projet scolaire à l'INSA de Lyon afin de mettre en pratique nos compétences liées au web sémantique et aux technologies web.
     """)
 
+
+# Page des modèles automobiles
 def models():
     st.title("Modèles automobiles")
 
@@ -191,9 +194,82 @@ def models():
     else:
         st.warning("Aucune marque sélectionnée. Retournez à l'accueil pour rechercher une marque.")
 
+
+# Page des statistiques
 def stats():
     st.title("Statistiques")
-    st.write("Les statistiques seront affichées ici...")
+
+    # Afficher les statistiques
+    st.subheader("Nombre total de constructeurs")
+    total_manufacturers = manager.get_total_manufacturers()
+    st.write(f"Total des constructeurs : {total_manufacturers}")
+
+    st.subheader("Nombre total de voitures")
+    total_cars = manager.get_total_cars()
+    st.write(f"Total des voitures : {total_cars}")
+
+    st.subheader("Top constructeurs")
+    top_manufacturers = manager.get_top_manufacturers()
+    df_top_manufacturers = pd.DataFrame([
+        {"manufacturer": manufacturer['manufacturerName']['value'], "count": manufacturer['count']['value']}
+        for manufacturer in top_manufacturers
+    ])
+    fig = px.bar(df_top_manufacturers, x="manufacturer", y="count", title="Top constructeurs", labels={"count": "Nombre de voitures"})
+    st.plotly_chart(fig)
+
+    st.subheader("Top types de moteurs")
+    top_engine_types = manager.get_top_engine_types()
+    df_top_engine_types = pd.DataFrame([
+        {"engineType": engine_type['engineType']['value'], "count": engine_type['count']['value']}
+        for engine_type in top_engine_types
+    ])
+    fig = px.bar(df_top_engine_types, x="engineType", y="count", title="Top types de moteurs", labels={"count": "Nombre de voitures"})
+    st.plotly_chart(fig)
+
+    st.subheader("Voitures par décennie de production (1950-2020)")
+    car_by_decade = manager.get_car_by_production_decade_from1950_to2020()
+    df_car_by_decade = pd.DataFrame([
+        {"decade": decade['decade']['value'], "count": decade['count']['value']}
+        for decade in car_by_decade
+    ])
+    fig = px.line(df_car_by_decade, x="decade", y="count", title="Voitures par décennie de production (1950-2020)", labels={"count": "Nombre de voitures"})
+    st.plotly_chart(fig)
+
+    st.subheader("Constructeurs par pays")
+    manufacturers_by_country = manager.get_manufacturers_by_country()
+    df_manufacturers_by_country = pd.DataFrame([
+        {"country": country['country']['value'], "count": country['count']['value']}
+        for country in manufacturers_by_country
+    ])
+    fig = px.bar(df_manufacturers_by_country, x="country", y="count", title="Constructeurs par pays", labels={"count": "Nombre de constructeurs"})
+    st.plotly_chart(fig)
+
+    st.subheader("Meilleures carrosseries")
+    best_carrosserie = manager.get_best_carrosserie()
+    df_best_carrosserie = pd.DataFrame([
+        {"name": carrosserie['name']['value'], "count": carrosserie['count']['value']}
+        for carrosserie in best_carrosserie
+    ])
+    fig = px.bar(df_best_carrosserie, x="name", y="count", title="Meilleures carrosseries", labels={"count": "Nombre de voitures"})
+    st.plotly_chart(fig)
+
+    st.subheader("Classes de voitures")
+    class_car = manager.get_class_car()
+    df_class_car = pd.DataFrame([
+        {"carClass": car_class['carClass']['value'], "count": car_class['count']['value']}
+        for car_class in class_car
+    ])
+    fig = px.bar(df_class_car, x="carClass", y="count", title="Classes de voitures", labels={"count": "Nombre de voitures"})
+    st.plotly_chart(fig)
+
+    st.subheader("TOP Chiffre d'affaires des entreprises sur un an")
+    company_turnover = manager.get_company_turnover()
+    df_company_turnover = pd.DataFrame([
+        {"manufacturer": company['manufacturer']['value'], "salary": company['salary']['value']}
+        for company in company_turnover
+    ])
+    fig = px.bar(df_company_turnover, x="manufacturer", y="salary", title="TOP Chiffre d'affaires des entreprises sur un an", labels={"salary": "Chiffre d'affaires (euros)"})
+    st.plotly_chart(fig)
 
 # Manage navigation between pages
 PAGES = {
@@ -203,6 +279,7 @@ PAGES = {
     "Statistiques": stats
 }
 
+# Main function
 def main():
     # Initialisation de l'état de navigation
     if "page" not in st.session_state:

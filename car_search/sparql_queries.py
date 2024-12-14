@@ -35,7 +35,6 @@ class CarQueries:
             LIMIT 10
         """
     
-
     def get_car_models(self, brand):
         query = f"""
             {self.prefix}
@@ -70,8 +69,6 @@ class CarQueries:
 
         return query
 
-
-    
     def get_car_details(self, car_uri):
         return f"""
             {self.prefix}
@@ -114,7 +111,7 @@ class CarQueries:
             {self.prefix}
             SELECT (COUNT(DISTINCT ?car) AS ?count)
             WHERE {{
-                     rdf:type dbo:Automobile .
+                    ?car rdf:type dbo:Automobile .
             }}
         """
     
@@ -133,25 +130,115 @@ class CarQueries:
             LIMIT 10
         """
     
+    def get_top_engine_types(self):
+        return f"""
+            {self.prefix}
+            SELECT ?engineType (COUNT(?car) AS ?count)
+            WHERE {{
+                ?car rdf:type dbo:Automobile ;
+                     dbo:engine ?engine .
+                ?engine rdfs:label ?engineType .
+                FILTER(LANG(?engineType) = 'en')
+            }}
+            GROUP BY ?engineType
+            ORDER BY DESC(?count)
+            LIMIT 5
+        """
+    
+    # à voir    
+    def get_fuel_types(self):
+        return f"""
+            {self.prefix}
+            SELECT ?fuelType (COUNT(?car) AS ?count)
+            WHERE {{
+                ?car rdf:type dbo:Automobile ;
+                     dbo:fuelType ?fuel .
+                ?fuel rdfs:label ?fuelType .
+                FILTER(LANG(?fuelType) = 'en')
+            }}
+            GROUP BY ?fuelType
+            ORDER BY DESC(?count)
+            LIMIT 5
+        """
+    
+    def get_car_by_production_decade(self):
+        return f"""
+            {self.prefix}
+            SELECT ?decade (COUNT(?car) AS ?count)
+            WHERE {{
+                ?car rdf:type dbo:Automobile ;
+                    dbo:productionStartYear ?year .
+            
+                BIND(year(?year) AS ?year_number)
+                BIND(FLOOR(?year_number / 10) * 10 AS ?decade)
+                FILTER(?decade >= 1950 and ?decade <= 2025)
+            }}
+            GROUP BY ?decade
+            ORDER BY ?decade
+        """
+    
     def get_manufacturers_by_country(self):
         return f"""
             {self.prefix}
-            SELECT ?countryName (COUNT(?manufacturer) AS ?count)
+            SELECT ?country (COUNT(DISTINCT ?manufacturer) AS ?count)
             WHERE {{
                 ?manufacturer rdf:type dbo:Company ;
                             dbo:industry dbr:Automotive_industry ;
-                            rdfs:label ?manufacturerName ;
-                            dbo:country ?country .
-                ?country rdfs:label ?countryName .
+                            dbp:locationCountry ?country.
+                FILTER (lang(?country) = "en") 
                 
-                FILTER(LANG(?manufacturerName) = 'en')
-                FILTER(LANG(?countryName) = 'en')
             }}
-            GROUP BY ?countryName
+            GROUP BY ?country
             ORDER BY DESC(?count)
-            LIMIT 10
+            LIMIT 5
+        """
+    
+    def get_best_carrosserie(self):
+        return f"""
+            {self.prefix}
+            SELECT ?name (COUNT(?car) AS ?count)
+            WHERE {{
+                ?car rdf:type dbo:Automobile ;
+                    dbo:bodyStyle ?bodyStyle .
+                ?bodyStyle rdfs:label ?name .
+                FILTER(LANG(?name) = "en")
+            }}
+            GROUP BY ?name
+            ORDER BY DESC(?count)
+            LIMIT 5
         """
 
+    def get_class_car(self):
+        return f"""
+            {self.prefix}
+            SELECT ?carClass (COUNT(?car) AS ?count)
+            WHERE {{
+                ?car rdf:type dbo:Automobile ;
+                    dbo:class ?carclass .
+                ?carclass rdfs:label ?carClass .
+                FILTER(LANG(?carClass) = "en")
+            }}
+            GROUP BY ?carClass
+            ORDER BY DESC(?count)
+            LIMIT 5
+        """
+    
+    def get_company_turnover(self):
+        return f"""
+            {self.prefix}
+            SELECT ?manufacturer ?salary
+            WHERE {{
+                ?manufacturer rdf:type dbo:Company ;
+                            dbo:industry dbr:Automotive_industry ;
+                            dbo:netIncome ?salary .
+
+                FILTER(datatype(?salary)=dbd:euro)    
+            }}
+            ORDER BY DESC(xsd:integer(?salary))
+            LIMIT 5
+        """
+    
+    
 
 
 
@@ -182,9 +269,7 @@ class CarQueries:
 
 
 
-
-
-
+# à voir
     
     def search_cars_advanced(self, manufacturer=None, min_year=None, max_year=None):
         filters = []

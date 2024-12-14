@@ -5,3 +5,5 @@
 -> pip install -r requirements.txt
 
 -> python -m streamlit run app/interface.py
+
+(pip install matplotlib seaborn plotly altair)
