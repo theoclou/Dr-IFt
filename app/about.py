@@ -9,7 +9,7 @@ def about(manager):
 
     ### Développeurs
     - **Audrey SOULET**
-    - **Abderrahlane BOUZIANE**
+    - **Abderrahmane BOUZIANE**
     - **Noam CATHERINE**
     - **Quentin MARIAT**
     - **Théo CLOUSCARD**

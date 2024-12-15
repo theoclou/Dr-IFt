@@ -267,7 +267,7 @@ class CarQueries:
             ORDER BY ?year
             LIMIT 20
         """
-    
+
 ##########################################################
 #################### Group functions #####################
 ##########################################################
@@ -399,7 +399,7 @@ class CarQueries:
             }}
             LIMIT 20
         """
-    
+
     def search_investors_of_group(self, group):
         return f"""
             {self.prefix}

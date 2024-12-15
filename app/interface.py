@@ -1,4 +1,11 @@
+import sys
+import os
 import streamlit as st
+
+# Add the parent directory to sys.path
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
 from car_search.sparql_manager import SparqlManager
 
 from about import about
@@ -60,7 +67,9 @@ def main():
     if st.sidebar.button("À propos"):
         st.session_state.page = "About"
         st.rerun()
-
+    if st.sidebar.button("Groupe"):
+        st.session_state.page = "Groupe"
+        st.rerun()
 # Entrypoint
-if __name__ == "__main__":
+if __name__ == "_main_":
     main()

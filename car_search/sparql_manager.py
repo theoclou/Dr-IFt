@@ -86,6 +86,7 @@ class SparqlManager:
         results = self.execute_query(query)
         return results
 
+
     ##########################################################
     #################### Group functions #####################
     ##########################################################
@@ -185,3 +186,4 @@ class SparqlManager:
             "owner": result.get("owner", {}).get("value")
         } for result in results]
         return processed_results
+
