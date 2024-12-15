@@ -21,6 +21,12 @@ def home():
                     key="manufacturer_suggestions"
                 )
                 if selected_manufacturer:
+                    # Lien vers la page de la marque 
+                    if st.button("Voir la marque"):
+                        # Mettez à jour l'état et redirigez via session_state
+                        st.session_state.page = "Marques"
+                        st.session_state.manufacturer = selected_manufacturer
+                        st.rerun()
                     # Lien vers la page des modèles
                     st.write(f"**Modèles de {selected_manufacturer}:**")
                     if st.button("Voir les modèles"):
@@ -71,9 +77,6 @@ def models():
 def brands():
     st.title("Marques automobiles")
 
-
-
-
     manufacturer = st.session_state.get("manufacturer", None)
     if manufacturer:
 
@@ -84,10 +87,83 @@ def brands():
         if brand:
             # Affichage des données brutes 
             st.markdown(f'## {brand[0]["cleanName"]["value"]}') 
-            st.write(f"**Date de fondation :** {brand[0]['cleanFoundingDate']['value']}")
-            st.write(f"**Site web :** {brand[0]['website']['value']}")
-            st.write(f"**Description :** {brand[0]['description']['value']}")
-            st.write(f"**Description longue :** {brand[0]['longDescription']['value']}")
+            try :
+                if (brand[0]['cleanFoundingDate']['value'] != ""):
+                    st.write(f"**Date de fondation :** {brand[0]['cleanFoundingDate']['value']}")
+                else :
+                    st.write(f"**Date de fondation :** Non disponible")
+            except:
+                st.write(f"**Date de fondation :** Non disponibl")
+            
+            try:
+                if (brand[0]['cleanFounder']['value'] != ""):
+                    st.write(f"**Fondateur :** {brand[0]['cleanFounder']['value']}")
+                else :
+                    st.write(f"**Fondateur :** Non disponible")
+            except:
+                st.write(f"**Fondateur :** Non disponible")
+            
+            try:
+                if (brand[0]['website']['value'] != ""):
+                    st.write(f"**Site web :** {brand[0]['website']['value']}")
+                else :
+                    st.write(f"**Site web :** Non disponible")
+            except:
+                st.write(f"**Site web :** Non disponible")
+
+            try:
+                if (brand[0]['cleanLocation']['value'] != ""):
+                    st.write(f"**Localisation :** {brand[0]['cleanLocation']['value']}")
+                else :
+                    st.write(f"**Localisation :** Non disponible")
+            except:
+                st.write(f"**Localisation :** Non disponible")
+            
+            try:
+                if (brand[0]['description']['value'] != ""):
+                    st.write(f"**Description :** {brand[0]['description']['value']}")
+                else :
+                    st.write(f"**Description :** Non disponible")
+            except:
+                st.write(f"**Description :** Non disponible")
+            
+            try:
+                if (brand[0]['longDescription']['value'] != ""):
+                    st.write(f"**Description longue :** {brand[0]['longDescription']['value']}")
+                else :
+                    st.write(f"**Description longue :** Non disponible")
+            except:
+                st.write(f"**Description longue :** Non disponible")
+            
+            try:
+                if (brand[0]['cleanProduct']['value'] != ""):
+                    st.write(f"**Type de Produit :** {brand[0]['cleanProduct']['value']}")
+                else :
+                    st.write(f"**Type de Produit :** Non disponible")
+            except:
+                st.write(f"**Type de Produit :** Non disponible")
+            
+            try:
+                if (brand[0]['parentCompany']['value'] != ""):
+                    parent_uri = brand[0]['parentCompany']['value']
+                    parent_uri = parent_uri.split('/')[-1]
+                    parent_name = manager.get_object_name(parent_uri)
+                    if parent_name:
+                        st.write(f"**Compagnie Parente :** {parent_name[0]['cleanName']['value']}")
+                    else:    
+                        st.write(f"**Compagnie Parente :** Non disponible")
+                else :
+                    st.write(f"**Compagnie Parente :** Non disponible")
+            except:
+                st.write(f"**Compagnie Parente :** Non disponible")
+
+            try:
+                if (brand[0]['childCompanies']['value'] != ""):
+                    st.write(f"**Compagnies Filiales :** {brand[0]['childCompanies']['value']}")
+                else :
+                    st.write(f"**Compagnies Filiales :** Non disponible")
+            except:
+                st.write(f"**Compagnies Filiales :** Non disponible")
 
             st.write("### Données brutes retournées :")
             st.json(brand)

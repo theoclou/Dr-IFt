@@ -204,3 +204,12 @@ class BrandQueries:
                 }}
                 GROUP BY ?company ?foundingDate ?comment ?site ?netIncome ?operatingIncome ?revenue ?longDescription ?parentCompany
                 """
+    
+    def get_object_name(self, object):
+        return f"""
+            {self.prefix}
+            SELECT (STR((?name)) AS ?cleanName)
+            WHERE {{
+                dbr:{object} foaf:name ?name .
+            }}
+        """
