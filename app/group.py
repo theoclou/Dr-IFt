@@ -22,7 +22,8 @@ def group_information(manager):
     </style>
     """, unsafe_allow_html=True)
 
-    group = st.text_input("🔍 Entrez le nom du groupe :", "")
+    group = st.text_input("🔍 Entrez le nom du groupe :", autocomplete ="off")
+    
     search_button = st.button("Obtenir les informations")
 
     if search_button:

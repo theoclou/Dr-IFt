@@ -61,7 +61,8 @@ def models(manager):
                                             st.write(f"**Description :** {related_details.get('description', {}).get('value', 'Aucune description disponible')}")
                                             if 'image' in related_details:
                                                 st.image(related_details['image']['value'], use_container_width=True)
-                                            st.write(f"[Voir sur DBpedia]({selected_related_car_uri})")
+                                            if selected_related_car_uri:
+                                                st.write(f"[Voir sur DBpedia]({selected_related_car_uri})")
                                         else:
                                             st.warning("Aucun détail disponible pour ce modèle.")
                                     except Exception as e:

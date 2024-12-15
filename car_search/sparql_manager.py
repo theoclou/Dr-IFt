@@ -1,6 +1,8 @@
 from SPARQLWrapper import SPARQLWrapper, JSON
 from car_search.sparql_queries import CarQueries
 import logging
+from urllib.parse import quote
+
 
 def strip_dbpedia_prefix(value):
     """
@@ -60,11 +62,6 @@ class SparqlManager:
             query_models = self.queries.get_car_models(brand.replace(" ", "_"))
             car_models = self.execute_query(query_models)
 
-            # Si aucun résultat, essayer une requête plus large
-            if not car_models:
-                query_models = self.queries.get_car_models_with_broad_query(brand.replace(" ", "_"))
-                car_models = self.execute_query(query_models)
-
             # Étape 2 : Obtenir les modèles similaires pour chaque voiture principale
             for car in car_models:
                 car["relatedCars"] = []
@@ -97,22 +94,16 @@ class SparqlManager:
         
     def get_car_details(self, name):
         try:
-            # Add more diagnostic print statements
-            print(f"Attempting to retrieve details for car name: {name}")
-            
-            print(f"name: {name}")
-            query = self.queries.get_car_details(name.replace(" ", "_"))
-            print(f"Generated query: {query}")  # Print the actual query
-            
+            # gérer les espaces et les parenthèses dans le nom
+            query = self.queries.get_car_details(quote(name.replace(" ", "_")))
             results = self.execute_query(query)
-            print(f"Query results: {results}")  # Print the results 
             
             # More detailed logging
             print(f"Query results: {results}")
             
             # Vérifier si des résultats sont trouvés
             if not results:
-                print(f"Aucun détail trouvé pour la voiture avec l'URI: {name}")
+                print(f"Aucun détail trouvé pour la voiture avec le nom : {name}")
                 return []
             
             # Retourner les résultats normalement
@@ -120,7 +111,7 @@ class SparqlManager:
 
         except Exception as e:
             print(f"Erreur lors de la recherche des détails de la voiture : {str(e)}")
-            print(f"Détails de l'erreur : URI = {car_uri}")
+            print(f"Détails de l'erreur : name = {name}")
             return []
         
     def search_cars(self, brand=None, year=None, engine_type=None):
