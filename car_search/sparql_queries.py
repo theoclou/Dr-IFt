@@ -258,6 +258,7 @@ class CarQueries:
                 ?car rdf:type dbo:Automobile ;
                      rdfs:label ?name ;
                      dbo:manufacturer ?manufacturer .
+                     
                 ?manufacturer rdfs:label ?manufacturerName .
                 OPTIONAL {{ ?car dbp:productionStartYear ?year }}
                 FILTER(LANG(?name) = 'en')

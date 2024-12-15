@@ -1,5 +1,21 @@
 from SPARQLWrapper import SPARQLWrapper, JSON
 from car_search.sparql_queries import CarQueries
+import re
+
+def strip_dbpedia_prefix(value):
+    """
+    Removes the 'http://dbpedia.org/resource/' prefix from a given string if it exists.
+    
+    Args:
+        value (str): The string to process.
+        
+    Returns:
+        str: The processed string without the prefix.
+    """
+    prefix = "http://dbpedia.org/resource/"
+    if isinstance(value, str) and value.startswith(prefix):
+        return value[len(prefix):]
+    return value
 
 class SparqlManager:
     def __init__(self, endpoint_url="http://dbpedia.org/sparql"):
@@ -7,6 +23,12 @@ class SparqlManager:
         self.sparql.setReturnFormat(JSON)
         self.queries = CarQueries()
 
+    def sanitize_input(self, input_str):
+        """
+        Sanitize input to prevent SPARQL injection.
+        Removes characters that are not alphanumeric, spaces, underscores, or hyphens.
+        """
+        return input_str
 # transform the resukts of the query into a list of dictionaries
     def execute_query(self, query):
         self.sparql.setQuery(query)
@@ -89,99 +111,112 @@ class SparqlManager:
     ##########################################################
     #################### Group functions #####################
     ##########################################################
+        
+    def execute_query(self, query):
+        self.sparql.setQuery(query)
+        try:
+            results = self.sparql.query().convert()
+            return results["results"]["bindings"]
+        except Exception as e:
+            logging.error(f"Error executing query: {str(e)}")
+            return []
+
     def get_parent_group_of_car(self, brand):
         if not brand:
             return []
-        query = self.queries.search_parent_group_of_car(brand.replace(" ", "_"))
+        sanitized_brand = self.sanitize_input(brand).replace(" ", "_")
+        query = self.queries.search_parent_group_of_car(sanitized_brand)
         results = self.execute_query(query)
-        # Process results to extract desired fields
         processed_results = [{
-            "car": result["car"]["value"],
-            "name": result["name"]["value"],
-            "manufacturer": result["manufacturer"]["value"],
-            "parentCompany": result.get("parentCompany", {}).get("value")
+            "name": strip_dbpedia_prefix(result["name"]["value"]),
+            "manufacturer": strip_dbpedia_prefix(result.get("manufacturer", {}).get("value", "N/A")),
+            "parentCompany": strip_dbpedia_prefix(result.get("parentCompany", {}).get("value", "N/A"))
         } for result in results]
         return processed_results
 
     def get_parent_group_of_manufacturer(self, manufacturer):
         if not manufacturer:
             return []
-        query = self.queries.search_parent_group_of_manufacturer(manufacturer.replace(" ", "_"))
+        sanitized_manufacturer = self.sanitize_input(manufacturer).replace(" ", "_")
+        query = self.queries.search_parent_group_of_manufacturer(sanitized_manufacturer)
         results = self.execute_query(query)
         processed_results = [{
-            "manufacturer": result["manufacturer"]["value"],
-            "parentCompany": result.get("parentCompany", {}).get("value")
+            "manufacturer": strip_dbpedia_prefix(result.get("manufacturer", {}).get("value", "N/A")),
+            "parentCompany": strip_dbpedia_prefix(result.get("parentCompany", {}).get("value", "N/A"))
         } for result in results]
         return processed_results
 
     def get_country_of_group(self, group):
-            
         if not group:
             return []
-        query = self.queries.search_country_of_group(group.replace(" ", "_"))
+        sanitized_group = self.sanitize_input(group).replace(" ", "_")
+        query = self.queries.search_country_of_group(sanitized_group)
         results = self.execute_query(query)
         processed_results = [{
-            "parentCompany": result["parentCompany"]["value"],
-            "Country": result.get("Country", {}).get("value")
+            "parentCompany": strip_dbpedia_prefix(result.get("parentCompany", {}).get("value", "N/A")),
+            "Country": strip_dbpedia_prefix(result.get("Country", {}).get("value", "N/A"))
         } for result in results]
         return processed_results
 
     def get_founding_date_of_group(self, group):
-            
         if not group:
             return []
-        query = self.queries.search_founding_date(group.replace(" ", "_"))
+        sanitized_group = self.sanitize_input(group).replace(" ", "_")
+        query = self.queries.search_founding_date(sanitized_group)
         results = self.execute_query(query)
         processed_results = [{
-            "parentCompany": result["parentCompany"]["value"],
-            "foundingDate": result.get("foundingdate", {}).get("value")
+            "parentCompany": strip_dbpedia_prefix(result.get("parentCompany", {}).get("value", "N/A")),
+            "foundingDate": strip_dbpedia_prefix(result.get("foundingDate", {}).get("value", "N/A"))
         } for result in results]
         return processed_results
 
     def get_founder_of_group(self, group):
         if not group:
             return []
-        query = self.queries.search_founder(group.replace(" ", "_"))
+        sanitized_group = self.sanitize_input(group).replace(" ", "_")
+        query = self.queries.search_founder(sanitized_group)
         results = self.execute_query(query)
         processed_results = [{
-            "parentCompany": result["parentCompany"]["value"],
-            "founder": result.get("founder", {}).get("value")
+            "parentCompany": strip_dbpedia_prefix(result.get("parentCompany", {}).get("value", "N/A")),
+            "founder": strip_dbpedia_prefix(result.get("founder", {}).get("value", "N/A"))
         } for result in results]
         return processed_results
 
-    def get_list_of_brands_of_group(self, group):  
+    def get_list_of_brands_of_group(self, group):
         if not group:
             return []
-        query = self.queries.search_list_of_brands(group.replace(" ", "_"))
+        sanitized_group = self.sanitize_input(group).replace(" ", "_")
+        query = self.queries.search_list_of_brands(sanitized_group)
         results = self.execute_query(query)
         processed_results = [{
-            "parentCompany": result["parentCompany"]["value"],
-            "founder": result.get("founder", {}).get("value"),
-            "brands": result.get("brands", {}).get("value")
+            "parentCompany": strip_dbpedia_prefix(result.get("parentCompany", {}).get("value", "N/A")),
+            # "founder": strip_dbpedia_prefix(result.get("founder", {}).get("value", "N/A")),
+            "brand": strip_dbpedia_prefix(result.get("brands", {}).get("value", "N/A"))
         } for result in results]
         return processed_results
 
     def get_revenue_of_group(self, group):
-        
         if not group:
             return []
-        query = self.queries.search_revenue(group.replace(" ", "_"))
+        sanitized_group = self.sanitize_input(group).replace(" ", "_")
+        query = self.queries.search_revenue(sanitized_group)
         results = self.execute_query(query)
         processed_results = [{
-                "parentCompany": result["parentCompany"]["value"],
-                "founder": result.get("founder", {}).get("value"),
-                "revenue": result.get("revenue", {}).get("value"),
-                "revenueCurrency": result.get("revenueCurrency", {}).get("value")
+            "parentCompany": strip_dbpedia_prefix(result.get("parentCompany", {}).get("value", "N/A")),
+            "founder": strip_dbpedia_prefix(result.get("founder", {}).get("value", "N/A")),
+            "revenue": result.get("revenue", {}).get("value", "N/A"),
+            "revenueCurrency": strip_dbpedia_prefix(result.get("revenueCurrency", {}).get("value", "N/A"))
         } for result in results]
         return processed_results
 
     def get_investors_of_group(self, group):
         if not group:
             return []
-        query = self.queries.search_investors_of_group(group.replace(" ", "_"))
+        sanitized_group = self.sanitize_input(group).replace(" ", "_")
+        query = self.queries.search_investors_of_group(sanitized_group)
         results = self.execute_query(query)
         processed_results = [{
-            "parentCompany": result["parentCompany"]["value"],
-            "owner": result.get("owner", {}).get("value")
+            "parentCompany": strip_dbpedia_prefix(result.get("parentCompany", {}).get("value", "N/A")),
+            "owner": strip_dbpedia_prefix(result.get("owner", {}).get("value", "N/A"))
         } for result in results]
         return processed_results
