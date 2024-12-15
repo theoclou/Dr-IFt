@@ -5,6 +5,7 @@ from about import about
 from home import home
 from models import models
 from stats import stats
+from group import group_information
 
 # Initialize SPARQL manager (global for reuse)
 manager = SparqlManager()
@@ -25,7 +26,8 @@ PAGES = {
     "Accueil": home,
     "Modèles": models,
     "About": about,
-    "Statistiques": stats
+    "Statistiques": stats,
+    "Groupes": group_information
 }
 
 # Main function
@@ -51,6 +53,9 @@ def main():
         st.rerun()
     if st.sidebar.button("Statistiques"):
         st.session_state.page = "Statistiques"
+        st.rerun()
+    if st.sidebar.button("Groupes"):
+        st.session_state.page = "Groupes"
         st.rerun()
     if st.sidebar.button("À propos"):
         st.session_state.page = "About"
