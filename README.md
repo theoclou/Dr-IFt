@@ -1,7 +1,7 @@
 # Dr-IFt
 
 ## Notre projet
-    AutoSearch est un moteur de recherche automobile innovant qui permet aux utilisateurs de découvrir et explorer différents constructeurs et modèles de véhicules en détail à l'aide de DBPEDIA
+AutoSearch est un moteur de recherche automobile innovant qui permet aux utilisateurs de découvrir et explorer différents constructeurs et modèles de véhicules en détail à l'aide de DBPEDIA
 
 ## Lancer le projet
     Version python > 3.7 (avec pip)
@@ -22,4 +22,4 @@
     - **Théo CLOUSCARD**
 
 ## Note
-    Ce projet a été réalisé dans le cadre d'un projet scolaire à l'INSA de Lyon afin de mettre en pratique nos compétences liées au web sémantique et aux technologies web.
+Ce projet a été réalisé dans le cadre d'un projet scolaire à l'INSA de Lyon afin de mettre en pratique nos compétences liées au web sémantique et aux technologies web.
