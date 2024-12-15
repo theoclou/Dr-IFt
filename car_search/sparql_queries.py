@@ -27,22 +27,65 @@ class CarQueries:
     def get_car_models(self, brand):
         return f"""
             {self.prefix}
-           SELECT ?car ?name ?year ?description ?image
+            SELECT DISTINCT ?car ?name ?year (GROUP_CONCAT(DISTINCT ?typeName ;
+            separator=",") as ?typeNames) ?description ?image
             WHERE {{
-            ?car dbo:manufacturer dbr:{brand} ;
-                a dbo:Automobile ;
-                rdfs:label ?name ;
+                ?car dbo:manufacturer dbr:{brand} ;
+                    a dbo:Automobile ;
+                    rdfs:label ?name ;
+                    dbo:abstract ?description ;
+                    dbo:thumbnail ?image ;
+                    dbo:class ?type .
+
+                ?type rdfs:label ?typeName .
+
+                OPTIONAL {{
+                    ?car dbo:productionStartYear ?year .
+                    FILTER (YEAR(?year) > 1800)
+                }}
+
+                FILTER (lang(?name) = "en" && lang(?description) = "en" &&
+            lang(?typeName) = "en")
+            }}
+            GROUP BY ?car ?name ?year ?description ?image
+            ORDER BY DESC(?year)
+            LIMIT 20
+        """
+    
+    def get_car_related(self, typeRelated):
+        return f"""
+            {self.prefix}
+            SELECT DISTINCT ?car ?name
+            WHERE {{
+                ?car a dbo:Automobile ;
+                     dbo:class ?type;
+                     rdfs:label ?name .
+                ?type rdfs:label ?typeName .
+                FILTER(lang(?typeName) = "en" && str(?typeName) = "{typeRelated}" && lang(?name) = "en")
+            }}
+            LIMIT 2
+        """
+
+    def get_car_details(self, car_uri):
+        return f"""
+            {self.prefix}
+           SELECT DISTINCT ?name ?brand ?year ?description ?image
+            WHERE {{
+            <{car_uri}> rdfs:label ?name ;
                 dbo:abstract ?description ;
-                dbo:thumbnail ?image .         
+                dbo:thumbnail ?image .
 
             OPTIONAL {{
-                ?car dbo:productionStartYear ?year .
+                <{car_uri}> dbo:manufacturer ?brand .
+            }}
+
+            OPTIONAL {{
+                <{car_uri}> dbo:productionStartYear ?year .
                 FILTER (YEAR(?year) > 1800)
             }}
 
             FILTER (lang(?name) = "en" && lang(?description) = "en")
             }}
-            ORDER BY DESC(?year)
         """
 
     def search_cars_by_brand(self, brand):
@@ -79,22 +122,6 @@ class CarQueries:
                 FILTER(?year = {year})
             }}
             LIMIT 20
-        """
-    
-    def get_car_details(self, car_uri):
-        return f"""
-            {self.prefix}
-            SELECT DISTINCT ?propertyLabel ?value
-            WHERE {{
-                <{car_uri}> ?property ?value .
-                ?property rdfs:label ?propertyLabel .
-                FILTER(LANG(?propertyLabel) = 'en')
-                FILTER(
-                    isLiteral(?value) && 
-                    (LANG(?value) = 'en' || LANG(?value) = '')
-                )
-            }}
-            LIMIT 30
         """
     
     def search_cars_advanced(self, manufacturer=None, min_year=None, max_year=None):
