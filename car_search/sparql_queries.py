@@ -39,25 +39,65 @@ class CarQueries:
         print(brand)
         query = f"""
             {self.prefix}
-            SELECT ?car ?name ?description ?image ?year
+            SELECT DISTINCT ?car ?name ?year (GROUP_CONCAT(DISTINCT ?typeName ;
+            separator=",") as ?typeNames) ?description ?image
             WHERE {{
-                ?car dbo:manufacturer <http://dbpedia.org/resource/{brand}> ;
+                ?car dbo:manufacturer dbr:{brand} ;
                     a dbo:Automobile ;
                     rdfs:label ?name ;
-                    dbo:abstract ?description .
+                    dbo:abstract ?description ;
+                    dbo:thumbnail ?image ;
+                    dbo:class ?type .
 
-                OPTIONAL {{
-                    ?car dbo:thumbnail ?image .
-                }}
+                ?type rdfs:label ?typeName .
 
                 OPTIONAL {{
                     ?car dbo:productionStartYear ?year .
-                    FILTER (?year > 1950)
+                    FILTER (YEAR(?year) > 1800)
                 }}
+
+                FILTER (lang(?name) = "en" && lang(?description) = "en" &&
+            lang(?typeName) = "en")
+            }}
+            GROUP BY ?car ?name ?year ?description ?image
+            ORDER BY DESC(?year)
+            LIMIT 20
+        """
+    
+    def get_car_related(self, typeRelated):
+        return f"""
+            {self.prefix}
+            SELECT DISTINCT ?car ?name
+            WHERE {{
+                ?car a dbo:Automobile ;
+                     dbo:class ?type;
+                     rdfs:label ?name .
+                ?type rdfs:label ?typeName .
+                FILTER(lang(?typeName) = "en" && str(?typeName) = "{typeRelated}" && lang(?name) = "en")
+            }}
+            LIMIT 2
+        """
+
+    def get_car_details(self, car_uri):
+        return f"""
+            {self.prefix}
+           SELECT DISTINCT ?name ?brand ?year ?description ?image
+            WHERE {{
+            <{car_uri}> rdfs:label ?name ;
+                dbo:abstract ?description ;
+                dbo:thumbnail ?image .
+
+            OPTIONAL {{
+                <{car_uri}> dbo:manufacturer ?brand .
+            }}
+
+            OPTIONAL {{
+                <{car_uri}> dbo:productionStartYear ?year .
+                FILTER (YEAR(?year) > 1800)
+            }}
 
                 FILTER (lang(?name) = "en" && lang(?description) = "en")
             }}
-            ORDER BY DESC(?year)
         """
 
         return query
