@@ -108,6 +108,7 @@ class SparqlManager:
         results = self.execute_query(query)
         return results
 
+
     ##########################################################
     #################### Group functions #####################
     ##########################################################
@@ -220,3 +221,4 @@ class SparqlManager:
             "owner": strip_dbpedia_prefix(result.get("owner", {}).get("value", "N/A"))
         } for result in results]
         return processed_results
+

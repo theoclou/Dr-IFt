@@ -1,3 +1,5 @@
+import sys
+import os
 import streamlit as st
 import os 
 import sys
@@ -65,7 +67,9 @@ def main():
     if st.sidebar.button("À propos"):
         st.session_state.page = "About"
         st.rerun()
-
+    if st.sidebar.button("Groupe"):
+        st.session_state.page = "Groupe"
+        st.rerun()
 # Entrypoint
-if __name__ == "__main__":
+if __name__ == "_main_":
     main()
