@@ -168,7 +168,7 @@ class BrandQueries:
                 (STR(MIN(?name)) AS ?cleanName) 
                 (STR(?foundingDate) AS ?cleanFoundingDate)
                 (GROUP_CONCAT(DISTINCT REPLACE(STR(?founder), "^.*[/#]", ""); separator=", ") AS ?cleanFounder)
-                (GROUP_CONCAT(DISTINCT ?location; separator=", ") AS ?cleanLocation)
+                (GROUP_CONCAT(DISTINCT COALESCE(STR(?locationName), STR(?location)); separator=", ") AS ?cleanLocation)
                 (STR(?comment) AS ?description) 
                 (STR(?site) AS ?website) 
                 (GROUP_CONCAT(DISTINCT REPLACE(STR(?product), "^.*[/#]", ""); separator=", ") AS ?cleanProduct)
@@ -191,7 +191,9 @@ class BrandQueries:
                 OPTIONAL {{ ?company dbo:abstract ?longDescription .
                     FILTER(lang(?longDescription) = "en")}}
                 OPTIONAL {{ ?company dbo:foundedBy ?founder . }}
-                OPTIONAL {{ ?company dbp:location ?location . }}
+                OPTIONAL {{ ?company dbp:location ?location .
+                            OPTIONAL {{ ?location foaf:name ?locationName . }}
+                }}
                 OPTIONAL {{ ?company dbo:product ?product . }}
                 OPTIONAL {{ ?company dbo:parentCompany ?parentCompany . }}
                 OPTIONAL {{
@@ -204,12 +206,13 @@ class BrandQueries:
                 }}
                 GROUP BY ?company ?foundingDate ?comment ?site ?netIncome ?operatingIncome ?revenue ?longDescription ?parentCompany
                 """
+
     
     def get_object_name(self, object):
         return f"""
-            {self.prefix}
-            SELECT (STR((?name)) AS ?cleanName)
-            WHERE {{
-                dbr:{object} foaf:name ?name .
-            }}
-        """
+        {self.prefix}
+        SELECT (STR((?name)) AS ?cleanName)
+        WHERE {{
+            <http://dbpedia.org/resource/{object}> foaf:name ?name .
+        }}
+    """

@@ -62,5 +62,7 @@ class SparqlManager:
     def get_object_name(self, object_uri):
         query = self.brand_queries.get_object_name(object_uri)
         results = self.execute_query(query)
+        if results == []:
+            return object_uri.replace("_", " ")
         print(results)
         return results
