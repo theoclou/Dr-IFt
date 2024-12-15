@@ -10,7 +10,7 @@ class CarQueries:
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX yago: <http://dbpedia.org/class/yago/>
         """
-
+# ---------------------------------------------------------------    
 #Page d'accueil + modèle de voiture
 
     def get_manufacturers_suggestions(self, query):
@@ -36,6 +36,7 @@ class CarQueries:
         """
     
     def get_car_models(self, brand):
+        print(brand)
         query = f"""
             {self.prefix}
             SELECT ?car ?name ?description ?image ?year
@@ -51,21 +52,13 @@ class CarQueries:
 
                 OPTIONAL {{
                     ?car dbo:productionStartYear ?year .
-                    FILTER (?year > 1800)
+                    FILTER (?year > 1950)
                 }}
 
                 FILTER (lang(?name) = "en" && lang(?description) = "en")
             }}
             ORDER BY DESC(?year)
         """
-
-        """headers = {
-            'Accept': 'application/sparql-results+json',  # Correct Accept header for DBpedia JSON response
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'  # Ajoute cet en-tête
-
-        }
-
-        response = requests.get(sparql_endpoint, params={'query': query, 'format': 'json'}, headers=headers)"""
 
         return query
 
@@ -84,7 +77,7 @@ class CarQueries:
             }}
             LIMIT 30
         """
-    
+# ---------------------------------------------------------------    
 # Page statistiques
 
     def get_total_manufacturers(self):
@@ -145,52 +138,59 @@ class CarQueries:
             LIMIT 5
         """
     
-    # à voir    
-    def get_fuel_types(self):
+    def get_car_by_production_year(self):
         return f"""
             {self.prefix}
-            SELECT ?fuelType (COUNT(?car) AS ?count)
-            WHERE {{
-                ?car rdf:type dbo:Automobile ;
-                     dbo:fuelType ?fuel .
-                ?fuel rdfs:label ?fuelType .
-                FILTER(LANG(?fuelType) = 'en')
-            }}
-            GROUP BY ?fuelType
-            ORDER BY DESC(?count)
-            LIMIT 5
-        """
-    
-    def get_car_by_production_decade(self):
-        return f"""
-            {self.prefix}
-            SELECT ?decade (COUNT(?car) AS ?count)
+            SELECT ?yearnum (COUNT(?car) AS ?count)
             WHERE {{
                 ?car rdf:type dbo:Automobile ;
                     dbo:productionStartYear ?year .
             
-                BIND(year(?year) AS ?year_number)
-                BIND(FLOOR(?year_number / 10) * 10 AS ?decade)
-                FILTER(?decade >= 1950 and ?decade <= 2025)
+                BIND(year(?year) AS ?yearnum)
+                FILTER(?yearnum >= 1950 and ?yearnum <= 2022)
             }}
-            GROUP BY ?decade
-            ORDER BY ?decade
+            GROUP BY ?yearnum
+            ORDER BY ?yearnum
         """
     
     def get_manufacturers_by_country(self):
         return f"""
             {self.prefix}
-            SELECT ?country (COUNT(DISTINCT ?manufacturer) AS ?count)
+            SELECT ?country ?count
             WHERE {{
+            {{
+                SELECT ?country (COUNT(DISTINCT ?manufacturer) AS ?count)
+                WHERE {{
                 ?manufacturer rdf:type dbo:Company ;
-                            dbo:industry dbr:Automotive_industry ;
-                            dbp:locationCountry ?country.
-                FILTER (lang(?country) = "en") 
-                
+                                dbo:industry dbr:Automotive_industry ;
+                                dbp:locationCountry ?country.
+                FILTER (lang(?country) = "en")
+                }}
+                GROUP BY ?country
+                ORDER BY DESC(?count)
+                LIMIT 10
             }}
-            GROUP BY ?country
+            UNION
+            {{
+                SELECT ("Others" AS ?country) (SUM(?count) AS ?count)
+                WHERE {{
+                {{
+                    SELECT ?country (COUNT(DISTINCT ?manufacturer) AS ?count)
+                    WHERE {{
+                    ?manufacturer rdf:type dbo:Company ;
+                                    dbo:industry dbr:Automotive_industry ;
+                                    dbp:locationCountry ?country.
+                    FILTER (lang(?country) = "en")
+                    }}
+                    GROUP BY ?country
+                    ORDER BY DESC(?count)
+                    OFFSET 10
+                }}
+                }}
+            }}
+            }}
             ORDER BY DESC(?count)
-            LIMIT 5
+
         """
     
     def get_best_carrosserie(self):
@@ -237,39 +237,8 @@ class CarQueries:
             ORDER BY DESC(xsd:integer(?salary))
             LIMIT 5
         """
-    
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# à voir
+# ---------------------------------------------------------------        
+# Autres
     
     def search_cars_advanced(self, manufacturer=None, min_year=None, max_year=None):
         filters = []

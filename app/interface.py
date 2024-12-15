@@ -7,12 +7,11 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 from car_search.sparql_manager import SparqlManager
-import random
-import matplotlib.pyplot as plt
-import seaborn as sns
-import plotly.express as px
-import altair as alt
-import pandas as pd
+
+from about import about
+from home import home
+from models import models
+from stats import stats
 
 # Initialize SPARQL manager (global for reuse)
 manager = SparqlManager()
@@ -20,7 +19,7 @@ manager = SparqlManager()
 st.set_page_config(
     page_title="Moteur de recherche automobile",  # Titre de la page
     page_icon="🚗",  # Icône de la page
-    #layout="wide",  # Utilise la mise en page large pour maximiser l'espace
+    layout="wide",  # Active la mise en page large
     initial_sidebar_state="expanded",  # État initial de la barre latérale (ouverte)
     menu_items={
         'Get Help': 'https://www.streamlit.io',
@@ -151,7 +150,7 @@ def about():
 
     ### Développeurs
     - **Audrey SOULET**
-    - **Abderrahlane BOUZIANE**
+    - **Abderrahmane BOUZIANE**
     - **Noam CATHERINE**
     - **Quentin MARIAT**
     - **Théo CLOUSCARD**
@@ -385,6 +384,7 @@ def group_information():
 
 
 # Manage navigation between pages
+# Manage navigation between pages -> see functions in about.py, home.py, models.py, stats.py
 PAGES = {
     "Accueil": home,
     "Modèles": models,
@@ -404,7 +404,7 @@ def main():
         st.session_state.search_performed = False
 
     # Navigation basée sur l'état actuel
-    PAGES[st.session_state.page]()
+    PAGES[st.session_state.page](manager)
 
     # Barre latérale pour changer de page
     st.sidebar.title("Navigation")
