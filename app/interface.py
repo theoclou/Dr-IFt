@@ -165,6 +165,14 @@ def brands():
             except:
                 st.write(f"**Compagnies Filiales :** Non disponible")
 
+            st.write(f"**Models :**")
+            # Lien vers la page des modèles
+            if st.button("Voir les modèles"):
+                # Mettez à jour l'état et redirigez via session_state
+                st.session_state.page = "Modèles"
+                st.session_state.manufacturer = manufacturer
+                st.rerun()
+
             st.write("### Données brutes retournées :")
             st.json(brand)
         else:
