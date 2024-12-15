@@ -36,13 +36,12 @@ class CarQueries:
         """
     
     def get_car_models(self, brand):
-        print(brand)
         query = f"""
             {self.prefix}
             SELECT DISTINCT ?car ?name ?year (GROUP_CONCAT(DISTINCT ?typeName ;
             separator=",") as ?typeNames) ?description ?image
             WHERE {{
-                ?car dbo:manufacturer dbr:{brand} ;
+                ?car dbo:manufacturer <http://dbpedia.org/resource/{brand}> ;
                     a dbo:Automobile ;
                     rdfs:label ?name ;
                     dbo:abstract ?description ;
@@ -63,6 +62,7 @@ class CarQueries:
             ORDER BY DESC(?year)
             LIMIT 20
         """
+        return query
     
     def get_car_related(self, typeRelated):
         return f"""
@@ -98,24 +98,6 @@ class CarQueries:
 
                 FILTER (lang(?name) = "en" && lang(?description) = "en")
             }}
-        """
-
-        return query
-
-    def get_car_details(self, car_uri):
-        return f"""
-            {self.prefix}
-            SELECT DISTINCT ?propertyLabel ?value
-            WHERE {{
-                <{car_uri}> ?property ?value .
-                ?property rdfs:label ?propertyLabel .
-                FILTER(LANG(?propertyLabel) = 'en')
-                FILTER(
-                    isLiteral(?value) && 
-                    (LANG(?value) = 'en' || LANG(?value) = '')
-                )
-            }}
-            LIMIT 30
         """
 # ---------------------------------------------------------------    
 # Page statistiques

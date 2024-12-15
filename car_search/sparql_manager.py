@@ -107,9 +107,6 @@ class SparqlManager:
             )
         return self.execute_query(query)
     
-    def get_car_details(self, car_uri):
-        query = self.queries.get_car_details(car_uri.replace(" ", "_"))
-        return self.execute_query(query)
     
     def get_total_manufacturers(self):
         query = self.queries.get_total_manufacturers()
