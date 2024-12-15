@@ -6,7 +6,8 @@ class SparqlManager:
         self.sparql = SPARQLWrapper(endpoint_url)
         self.sparql.setReturnFormat(JSON)
         self.queries = CarQueries()
-    
+
+# transform the resukts of the query into a list of dictionaries
     def execute_query(self, query):
         self.sparql.setQuery(query)
         try:
@@ -15,7 +16,8 @@ class SparqlManager:
         except Exception as e:
             print(f"Erreur lors de l'exécution de la requête: {str(e)}")
             return []
-    
+
+# all the methods below are used to execute the queries defined in the sparql_queries.py file   
     def get_manufacturers_suggestions(self, query):
         if not query:
             return []
@@ -27,6 +29,7 @@ class SparqlManager:
     def get_car_models(self, brand):
         query = self.queries.get_car_models(brand.replace(" ", "_"))
         result = self.execute_query(query)
+        print(result)
         return result
     
     def get_car_details(self, car_uri):
@@ -58,8 +61,8 @@ class SparqlManager:
         results = self.execute_query(query)
         return results
     
-    def get_car_by_production_decade_from1950_to2020(self):
-        query = self.queries.get_car_by_production_decade()
+    def get_car_by_production_year_from1950_to2020(self):
+        query = self.queries.get_car_by_production_year()
         results = self.execute_query(query)
         return results
     

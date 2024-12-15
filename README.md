@@ -1,9 +1,25 @@
 # Dr-IFt
 
--> python > 3.7
+## Notre projet
+    AutoSearch est un moteur de recherche automobile innovant qui permet aux utilisateurs de découvrir et explorer différents constructeurs et modèles de véhicules en détail à l'aide de DBPEDIA
 
--> pip install -r requirements.txt
+## Lancer le projet
+    Version python > 3.7 (avec pip)
+    pip install -r requirements.txt (pour les dépendances)
+    python -m streamlit run app/interface.py (pour lancer l'app)
 
--> python -m streamlit run app/interface.py
+## Technologies/Ressources utilisées
+    - Streamlit
+    - SPARQL
+    - DBpedia
 
-(pip install matplotlib seaborn plotly altair)
+
+## Notre équipe
+    - **Audrey SOULET**
+    - **Abderrahlane BOUZIANE**
+    - **Noam CATHERINE**
+    - **Quentin MARIAT**
+    - **Théo CLOUSCARD**
+
+## Note
+    Ce projet a été réalisé dans le cadre d'un projet scolaire à l'INSA de Lyon afin de mettre en pratique nos compétences liées au web sémantique et aux technologies web.
