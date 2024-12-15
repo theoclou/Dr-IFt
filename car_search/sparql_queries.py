@@ -298,7 +298,9 @@ class CarQueries:
             ORDER BY ?year
             LIMIT 20
         """
-        
+##########################################################
+#################### Group functions #####################
+##########################################################
     def search_parent_group_of_car(self,brand):
         return f"""
             {self.prefix}
@@ -427,4 +429,36 @@ class CarQueries:
             }}
             LIMIT 20
         """
-    
+    def search_investors_of_group(self, group):
+        return f"""
+            {self.prefix}
+        SELECT DISTINCT ?parentCompany ?owner
+    WHERE {{
+    ?car rdf:type dbo:MeanOfTransportation ;
+         rdf:type dbo:Automobile ;
+         dbo:manufacturer ?manufacturer .
+                         
+    OPTIONAL {{ 
+        ?manufacturer dbo:parentCompany ?parentCompany . 
+    }}
+                    
+    FILTER NOT EXISTS {{
+        ?parentCompany dbo:parentCompany ?grandParentCompany . 
+    }}
+                    
+    OPTIONAL {{
+        ?parentCompany dbp:owners ?owner . 
+        # Alternatively, if 'dbp:owners' is correct:
+        # ?parentCompany dbp:owners ?owner . 
+    }}
+                    
+    FILTER(REGEX(STR(?parentCompany), '{group}', "i"))
+    }}
+LIMIT 20
+        """
+        
+        
+        
+        
+        
+        

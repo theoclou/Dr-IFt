@@ -82,3 +82,104 @@ class SparqlManager:
         query = self.queries.get_company_turnover()
         results = self.execute_query(query)
         return results
+
+
+##########################################################
+#################### Group functions #####################
+##########################################################
+def get_parent_group_of_car(self, brand):
+    if not brand:
+        return []
+    query = self.queries.search_parent_group_of_car(brand.replace(" ", "_"))
+    results = self.execute_query(query)
+    # Process results to extract desired fields
+    processed_results = [{
+        "car": result["car"]["value"],
+        "name": result["name"]["value"],
+        "manufacturer": result["manufacturer"]["value"],
+        "parentCompany": result.get("parentCompany", {}).get("value")
+    } for result in results]
+    return processed_results
+
+def get_parent_group_of_manufacturer(self, manufacturer):
+    if not manufacturer:
+        return []
+    query = self.queries.search_parent_group_of_manufacturer(manufacturer.replace(" ", "_"))
+    results = self.execute_query(query)
+    processed_results = [{
+        "manufacturer": result["manufacturer"]["value"],
+        "parentCompany": result.get("parentCompany", {}).get("value")
+    } for result in results]
+    return processed_results
+
+def get_country_of_group(self, group):
+        
+    if not group:
+        return []
+    query = self.queries.search_country_of_group(group.replace(" ", "_"))
+    results = self.execute_query(query)
+    processed_results = [{
+        "parentCompany": result["parentCompany"]["value"],
+        "Country": result.get("Country", {}).get("value")
+    } for result in results]
+    return processed_results
+
+def get_founding_date_of_group(self, group):
+        
+    if not group:
+        return []
+    query = self.queries.search_founding_date(group.replace(" ", "_"))
+    results = self.execute_query(query)
+    processed_results = [{
+        "parentCompany": result["parentCompany"]["value"],
+        "foundingDate": result.get("foundingdate", {}).get("value")
+    } for result in results]
+    return processed_results
+
+def get_founder_of_group(self, group):
+    if not group:
+        return []
+    query = self.queries.search_founder(group.replace(" ", "_"))
+    results = self.execute_query(query)
+    processed_results = [{
+        "parentCompany": result["parentCompany"]["value"],
+        "founder": result.get("founder", {}).get("value")
+    } for result in results]
+    return processed_results
+
+def get_list_of_brands_of_group(self, group):  
+    if not group:
+        return []
+    query = self.queries.search_list_of_brands(group.replace(" ", "_"))
+    results = self.execute_query(query)
+    processed_results = [{
+        "parentCompany": result["parentCompany"]["value"],
+        "founder": result.get("founder", {}).get("value"),
+        "brands": result.get("brands", {}).get("value")
+    } for result in results]
+    return processed_results
+
+def get_revenue_of_group(self, group):
+       
+    if not group:
+        return []
+    query = self.queries.search_revenue(group.replace(" ", "_"))
+    results = self.execute_query(query)
+    processed_results = [{
+            "parentCompany": result["parentCompany"]["value"],
+            "founder": result.get("founder", {}).get("value"),
+            "revenue": result.get("revenue", {}).get("value"),
+            "revenueCurrency": result.get("revenueCurrency", {}).get("value")
+    } for result in results]
+    return processed_results
+
+def get_investors_of_group(self, group):
+    if not group:
+        return []
+    query = self.queries.search_investors_of_group(group.replace(" ", "_"))
+    results = self.execute_query(query)
+    processed_results = [{
+        "parentCompany": result["parentCompany"]["value"],
+        "owner": result.get("owner", {}).get("value")
+    } for result in results]
+    return processed_results
