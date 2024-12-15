@@ -50,50 +50,79 @@ class SparqlManager:
         return suggestions
     
     def get_car_models(self, brand):
-        query = self.queries.get_car_models(brand)
+        query = self.queries.get_car_models(brand.replace(" ", "_"))
 
         return self.execute_query(query)
     
     def get_car_models_with_related(self, brand):
-        # Étape 1 : Obtenir les modèles principaux
         try:
-            query_models = self.queries.get_car_models(brand)
-            car_models = self.execute_query(query_models)  # Liste des modèles principaux
-        except Exception as e:
-            raise Exception(f"Erreur lors de la récupération des modèles pour {brand}: {e}")
+            # Étape 1 : Obtenir les modèles principaux
+            query_models = self.queries.get_car_models(brand.replace(" ", "_"))
+            car_models = self.execute_query(query_models)
 
-        # Étape 2 : Obtenir les modèles similaires pour chaque voiture principale
-        for car in car_models:
-            car["relatedCars"] = []  # Initialiser la liste des modèles similaires
+            # Si aucun résultat, essayer une requête plus large
+            if not car_models:
+                query_models = self.queries.get_car_models_with_broad_query(brand.replace(" ", "_"))
+                car_models = self.execute_query(query_models)
 
-            if "typeNames" in car:
-                # Récupérer la chaîne des types séparée par des virgules
-                type_names_str = car.get('typeNames', {}).get('value', '')
-                # Si la chaîne contient des types séparés par des virgules, les séparer en une liste
-                type_names = type_names_str.split(',') if type_names_str else []
+            # Étape 2 : Obtenir les modèles similaires pour chaque voiture principale
+            for car in car_models:
+                car["relatedCars"] = []
 
-                # Par exemple, si vous voulez récupérer le premier type :
-                if type_names:
-                    first_type = type_names[0].strip()  
-
+                # Essayer de trouver des voitures similaires
                 try:
-                    # Obtenir les modèles similaires pour le premier type
-                    query_related = self.queries.get_car_related(first_type)
-                    related_cars = self.execute_query(query_related)
-                    car["relatedCars"] = related_cars  # Ajouter les modèles similaires
+                    # Utiliser l'URI de la voiture pour trouver des voitures similaires
+                    car_uri = car.get('car', {}).get('value', '')
+                    
+                    if car_uri:
+                        # D'abord essayer de trouver des voitures similaires par classe
+                        query_related = self.queries.get_related_cars_by_class(car_uri)
+                        related_cars = self.execute_query(query_related)
+                        
+                        # Si pas de voitures similaires trouvées, utiliser la requête générale
+                        if not related_cars:
+                            query_related = self.queries.get_general_related_cars(car_uri)
+                            related_cars = self.execute_query(query_related)
+                        
+                        car["relatedCars"] = related_cars
+
                 except Exception as e:
-                    print(f"Erreur lors de la récupération des modèles similaires pour le type {first_type}: {e}")
-            else:
-                print(f"Aucun type trouvé pour la voiture {car['name']['value']}")
+                    print(f"Erreur lors de la recherche de modèles similaires : {e}")
 
-        # Étape 3 : Retourner la liste des modèles avec les informations des modèles similaires
-        return car_models
+            return car_models
 
-    
-    def get_car_details(self, car_uri):
-        query = self.queries.get_car_details(car_uri)
-        return self.execute_query(query)
-    
+        except Exception as e:
+            print(f"Erreur lors de la récupération des modèles : {e}")
+            return []
+        
+    def get_car_details(self, name):
+        try:
+            # Add more diagnostic print statements
+            print(f"Attempting to retrieve details for car name: {name}")
+            
+            print(f"name: {name}")
+            query = self.queries.get_car_details(name.replace(" ", "_"))
+            print(f"Generated query: {query}")  # Print the actual query
+            
+            results = self.execute_query(query)
+            print(f"Query results: {results}")  # Print the results 
+            
+            # More detailed logging
+            print(f"Query results: {results}")
+            
+            # Vérifier si des résultats sont trouvés
+            if not results:
+                print(f"Aucun détail trouvé pour la voiture avec l'URI: {name}")
+                return []
+            
+            # Retourner les résultats normalement
+            return results
+
+        except Exception as e:
+            print(f"Erreur lors de la recherche des détails de la voiture : {str(e)}")
+            print(f"Détails de l'erreur : URI = {car_uri}")
+            return []
+        
     def search_cars(self, brand=None, year=None, engine_type=None):
         if brand and not year:
             query = self.queries.search_cars_by_brand(brand)

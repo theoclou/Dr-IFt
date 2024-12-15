@@ -43,13 +43,13 @@ def models(manager):
                                 selected_related_car_uri = None
                                 for related_car in car['relatedCars']:
                                     if related_car.get('name', {}).get('value') == selected_related_car:
-                                        selected_related_car_uri = related_car['car']['value']
+                                        selected_related_car_uri = related_car.get('car', {}).get('value')
                                         break
-
+                                
                                 # Charger les détails uniquement si un modèle est sélectionné
-                                if selected_related_car_uri:
+                                if selected_related_car:
                                     try:
-                                        query_related_details = manager.queries.get_car_details(selected_related_car_uri)
+                                        query_related_details = manager.queries.get_car_details(selected_related_car.replace(" ", "_"))
                                         related_details = manager.execute_query(query_related_details)
                                         related_details = related_details[0] if related_details else None
 
