@@ -51,7 +51,7 @@ def main():
     if st.sidebar.button("Accueil"):
         st.session_state.page = "Accueil"
         st.rerun()
-    if st.sidebar.button("Modèles", disabled=not st.session_state.get('search_performed', False)):
+    if st.sidebar.button("Modèles"):
         st.session_state.page = "Modèles"
         st.rerun()
     if st.sidebar.button("Marques"):

@@ -305,11 +305,11 @@ class SparqlManager:
 
     
     def get_brand_details(self, brand_uri):
-        query = self.brand_queries.get_brand_details_2(brand_uri)
+        query = self.brand_queries.get_brand_details_2(brand_uri.replace(" ", "_"))
         return self.execute_query(query)
     
     def get_object_name(self, object_uri):
-        query = self.brand_queries.get_object_name(object_uri)
+        query = self.brand_queries.get_object_name(object_uri.replace(" ", "_"))
         results = self.execute_query(query)
         if results == []:
             return object_uri.replace("_", " ")

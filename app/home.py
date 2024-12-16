@@ -131,7 +131,7 @@ def home(manager):
         if reponse.lower() in [r.lower() for r in devinette["reponses"]]:
             st.success("Bravo ! Bonne réponse 🏆")
         else:
-            st.error("Pas tout à fait. Réessayez !")
+            st.error("Pas tout à fait. Réessayez ! la bonne réponse est : " + ", ".join(devinette["reponses"]))
 
     # Initialize citation if not already set
     if "citation" not in st.session_state:

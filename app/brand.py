@@ -31,18 +31,14 @@ def brands(manager):
             try:
                 if (brand[0]['description']['value'] != ""):
                     st.write(f"**Description :** {brand[0]['description']['value']}")
-                else :
-                    st.write(f"**Description :** Non disponible")
             except:
-                st.write(f"**Description :** Non disponible")
+                print("error")
 
             try :
                 if (brand[0]['cleanFoundingDate']['value'] != ""):
                     st.write(f"**Date de fondation :** {brand[0]['cleanFoundingDate']['value']}")
-                else :
-                    st.write(f"**Date de fondation :** Non disponible")
             except:
-                st.write(f"**Date de fondation :** Non disponibl")
+                print("error")
             
             try:
                 list_founders = brand[0]['cleanFounder']['value']
@@ -57,35 +53,27 @@ def brands(manager):
                         else :
                             chaine += ", " + founder_name[0]['cleanName']['value']
                     st.write(f"**Fondateur :** {chaine}")
-                else :
-                    st.write(f"**Fondateur :** Non disponible")
             except:
-                st.write(f"**Fondateur :** Non disponible")
+                print("error")
             
             try:
                 if (brand[0]['website']['value'] != ""):
                     st.write(f"**Site web :** {brand[0]['website']['value']}")
-                else :
-                    st.write(f"**Site web :** Non disponible")
             except:
-                st.write(f"**Site web :** Non disponible")
+                print("error")
 
             try:
                 if (brand[0]['cleanLocation']['value'] != ""):
                     st.write(f"**Localisation :** {brand[0]['cleanLocation']['value']}")
-                else :
-                    st.write(f"**Localisation :** Non disponible")
             except:
-                st.write(f"**Localisation :** Non disponible")
+                print("error")
             
             
             try:
                 if (brand[0]['longDescription']['value'] != ""):
                     st.write(f"**Description longue :** {brand[0]['longDescription']['value']}")
-                else :
-                    st.write(f"**Description longue :** Non disponible")
             except:
-                st.write(f"**Description longue :** Non disponible")
+                print("error")
             
             try:
                 products = brand[0]['cleanProduct']['value']
@@ -100,10 +88,8 @@ def brands(manager):
                         else :
                             chaine += ", " + element_name
                     st.write(f"**Type de Produit :** {chaine}")
-                else :
-                    st.write(f"**Type de Produit :** Non disponible")
             except:
-                st.write(f"**Type de Produit :** Non disponible")
+                print("error")
             
             try:
                 if (brand[0]['parentCompany']['value'] != ""):
@@ -117,12 +103,8 @@ def brands(manager):
                             st.session_state.manufacturer = parent_uri
                             print("rerunning")
                             st.rerun()
-                    else:    
-                        st.write(f"**Compagnie Parente :** Non disponible")
-                else :
-                    st.write(f"**Compagnie Parente :** Non disponible")
             except:
-                st.write(f"**Compagnie Parente :** Non disponible")
+                print("error")
 
             try:
                 child_companies = brand[0]['childCompanies']['value']
@@ -155,10 +137,8 @@ def brands(manager):
                                 st.session_state.page = "Marques"
                                 st.session_state.manufacturer = element
                                 st.rerun()
-                else:
-                    st.write(f"**Compagnies Filiales :** Non disponible1")
             except:
-                st.write(f"**Compagnies Filiales :** Non disponible2")
+                print("error")
 
             st.write(f"**Models :**")
             # Lien vers la page des modèles
@@ -167,9 +147,7 @@ def brands(manager):
                 st.session_state.page = "Modèles"
                 st.session_state.manufacturer = manufacturer
                 st.rerun()
-
-            st.write("### Données brutes retournées :")
-            st.json(brand)
+                
         else:
             st.warning("Aucun résultat trouvé")
     else:
