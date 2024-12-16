@@ -113,8 +113,9 @@ def brands(manager):
                     if parent_name:
                         st.write(f"**Compagnie Parente :**")
                         if st.button(f"{parent_name[0]['cleanName']['value']}"):
-                            st.session_state.page = "Marques"
+                            st.session_state.page = "Groupes"
                             st.session_state.manufacturer = parent_uri
+                            print("rerunning")
                             st.rerun()
                     else:    
                         st.write(f"**Compagnie Parente :** Non disponible")
