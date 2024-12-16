@@ -104,7 +104,7 @@ class CarQueries:
                 
                 FILTER(lang(?typeName) = "en" && str(?typeName) = "{typeRelated}" && lang(?name) = "en")
             }}
-            LIMIT 5
+            LIMIT 4
         """
 
     def get_car_details(self, car_uri):
