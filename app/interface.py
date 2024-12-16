@@ -6,6 +6,7 @@ from home import home
 from models import models
 from stats import stats
 from group import group_information
+from brand import brands
 
 # Initialize SPARQL manager (global for reuse)
 manager = SparqlManager()
@@ -28,7 +29,8 @@ PAGES = {
     "Modèles": models,
     "About": about,
     "Statistiques": stats,
-    "Groupes": group_information
+    "Groupes": group_information,
+    "Marques": brands
 }
 
 # Main function
