@@ -21,6 +21,7 @@ st.set_page_config(
     }
 )
 
+
 # Manage navigation between pages
 PAGES = {
     "Accueil": home,
@@ -50,6 +51,9 @@ def main():
         st.rerun()
     if st.sidebar.button("Modèles", disabled=not st.session_state.get('search_performed', False)):
         st.session_state.page = "Modèles"
+        st.rerun()
+    if st.sidebar.button("Marques"):
+        st.session_state.page = "Marques"
         st.rerun()
     if st.sidebar.button("Statistiques"):
         st.session_state.page = "Statistiques"

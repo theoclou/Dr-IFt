@@ -559,3 +559,94 @@ class CarQueries:
         }}
         LIMIT 20
             """
+    
+class BrandQueries:
+    def __init__(self):
+        self.prefix = """
+            PREFIX dbo: <http://dbpedia.org/ontology/>
+            PREFIX dbp: <http://dbpedia.org/property/>
+            PREFIX dbr: <http://dbpedia.org/resource/>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX yago: <http://dbpedia.org/class/yago/>
+        """
+
+    def get_brand_details(self, brand):
+        return f"""
+                {self.prefix}
+                SELECT ?company (STR(MIN(?name)) AS ?cleanName) (STR(?foundingDate) AS ?cleanFoundingDate) 
+                (STR(?comment) AS ?description) (STR(?site) AS ?website) 
+                (STR(?netIncome) AS ?netIncome) (STR(?operatingIncome) AS ?operatingIncome) 
+                (STR(?revenue) AS ?revenue) (STR(?longDescription) AS ?longDescription) 
+                WHERE {{
+                    VALUES ?company {{ dbr:{brand} }}
+                    ?company foaf:name ?name .
+                    OPTIONAL {{ ?company dbo:foundingDate ?foundingDate . }}
+                    OPTIONAL {{ ?company rdfs:comment ?comment .
+                                FILTER(lang(?comment) = "en") }}
+                    OPTIONAL {{ ?company foaf:homepage ?site . }}
+                    OPTIONAL {{ ?company dbo:netIncome ?netIncome . }}
+                    OPTIONAL {{ ?company dbo:operatingIncome ?operatingIncome . }}
+                    OPTIONAL {{ ?company dbo:revenue ?revenue . }}
+                    OPTIONAL {{ ?company dbo:abstract ?longDescription .
+                                FILTER(lang(?longDescription) = "en")}}
+                    }}
+                GROUP BY ?company ?foundingDate ?comment ?site ?netIncome ?operatingIncome ?revenue ?longDescription
+                """
+    
+    def get_brand_details_2(self, brand):
+        return f"""
+                {self.prefix}
+                SELECT 
+                ?company 
+                (STR(MIN(?name)) AS ?cleanName) 
+                (STR(?foundingDate) AS ?cleanFoundingDate)
+                (GROUP_CONCAT(DISTINCT REPLACE(STR(?founder), "^.*[/#]", ""); separator=", ") AS ?cleanFounder)
+                (GROUP_CONCAT(DISTINCT COALESCE(STR(?locationName), STR(?location)); separator=", ") AS ?cleanLocation)
+                (STR(?comment) AS ?description) 
+                (STR(?site) AS ?website) 
+                (GROUP_CONCAT(DISTINCT REPLACE(STR(?product), "^.*[/#]", ""); separator=", ") AS ?cleanProduct)
+                ?parentCompany
+                (COALESCE(GROUP_CONCAT(DISTINCT REPLACE(STR(?childCompany), "^.*[/#]", ""); separator=", "), "") AS ?childCompanies)
+                (STR(?netIncome) AS ?netIncome) 
+                (STR(?operatingIncome) AS ?operatingIncome) 
+                (STR(?revenue) AS ?revenue) 
+                (STR(?longDescription) AS ?longDescription) 
+                WHERE {{
+                VALUES ?company {{ dbr:{brand} }}
+                ?company foaf:name ?name .
+                OPTIONAL {{ ?company dbo:foundingDate ?foundingDate . }}
+                OPTIONAL {{ ?company rdfs:comment ?comment .
+                            FILTER(lang(?comment) = "en") }}
+                OPTIONAL {{ ?company foaf:homepage ?site . }}
+                OPTIONAL {{ ?company dbo:netIncome ?netIncome . }}
+                OPTIONAL {{ ?company dbo:operatingIncome ?operatingIncome . }}
+                OPTIONAL {{ ?company dbo:revenue ?revenue . }}
+                OPTIONAL {{ ?company dbo:abstract ?longDescription .
+                    FILTER(lang(?longDescription) = "en")}}
+                OPTIONAL {{ ?company dbo:foundedBy ?founder . }}
+                OPTIONAL {{ ?company dbp:location ?location .
+                            OPTIONAL {{ ?location foaf:name ?locationName . }}
+                }}
+                OPTIONAL {{ ?company dbo:product ?product . }}
+                OPTIONAL {{ ?company dbo:parentCompany ?parentCompany . }}
+                OPTIONAL {{
+                    SELECT ?company (GROUP_CONCAT(DISTINCT REPLACE(STR(?childCompany), "^.*[/#]", ""); separator=", ") AS ?childCompany)
+                    WHERE {{
+                    ?childCompany dbo:parentCompany ?company .
+                    }}
+                    GROUP BY ?company
+                }}
+                }}
+                GROUP BY ?company ?foundingDate ?comment ?site ?netIncome ?operatingIncome ?revenue ?longDescription ?parentCompany
+                """
+
+    
+    def get_object_name(self, object):
+        return f"""
+        {self.prefix}
+        SELECT (STR((?name)) AS ?cleanName)
+        WHERE {{
+            <http://dbpedia.org/resource/{object}> foaf:name ?name .
+        }}
+    """
