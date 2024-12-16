@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-
+import os
+from logo_image import get_car_brand_logo
 # Helper function to format currency
 def format_currency(value, currency):
     try:
@@ -10,7 +11,11 @@ def format_currency(value, currency):
     except (ValueError, TypeError):
         return "N/A"
 
-# Group Information page
+# Group Information pageimport os
+import streamlit as st
+import pandas as pd
+from PIL import Image
+
 def group_information(manager):
     st.title("🚗 Informations sur les Groupes")
 
@@ -22,10 +27,30 @@ def group_information(manager):
     </style>
     """, unsafe_allow_html=True)
 
-    group = st.text_input("🔍 Entrez le nom du groupe :", "")
+    # Retrieve the manufacturer from session state
+    group = st.session_state.get("manufacturer", "")
+
+    if not group:
+        st.warning("⚠️ Aucun groupe sélectionné.")
+        return
+
+    # Display the group's logo
+    st.markdown("### 🏁 Logo du Groupe")
+
+    # Call the function to fetch the logo
+    logo_path = get_car_brand_logo(group, save_path=f"car_logos/{group}_logo.jpg")
+
+    if os.path.exists(logo_path):
+        # Display the logo if it was successfully retrieved
+        image = Image.open(logo_path)
+        st.image(image, caption=f"Logo de {group}", width=300)
+    else:
+        st.warning(f"⚠️ Logo introuvable pour le groupe : {group}")
+
+    # Fetch other group-related information
     search_button = st.button("Obtenir les informations")
 
-    if search_button:
+    if search_button or st.session_state.get("search_performed", False):
         if not group.strip():
             st.warning("⚠️ Veuillez entrer un nom de groupe valide.")
         else:
@@ -53,7 +78,6 @@ def group_information(manager):
 
                 # Groupe Parent Tab
                 with tabs[0]:
-                    
                     st.markdown("### 📦 Groupe Parent (Constructeur)")
                     if parent_group_manufacturer:
                         df_manufacturer = pd.DataFrame(parent_group_manufacturer)
@@ -97,22 +121,6 @@ def group_information(manager):
                     else:
                         st.info("Aucune information sur les marques.")
 
-                # # Chiffre d'Affaires Tab
-                # with tabs[5]:
-                #     st.markdown("### 💰 Chiffre d'Affaires")
-                #     if revenue_info:
-                #         df_revenue = pd.DataFrame(revenue_info)
-                #         # Apply currency formatting
-                #         df_revenue['revenue'] = df_revenue.apply(
-                #             lambda row: format_currency(row['revenue'], row['revenueCurrency']),
-                #             axis=1
-                #         )
-                #         # Drop the 'revenueCurrency' column as it's now integrated
-                #         df_revenue = df_revenue.drop(columns=['revenueCurrency'])
-                #         st.dataframe(df_revenue, use_container_width=True)
-                #     else:
-                #         st.info("Aucune information sur le chiffre d'affaires.")
-
                 # Investisseurs Tab
                 with tabs[5]:
                     st.markdown("### 💼 Investisseurs")
@@ -121,6 +129,9 @@ def group_information(manager):
                         st.dataframe(df_investors, use_container_width=True)
                     else:
                         st.info("Aucune information sur les investisseurs.")
+
+                # Reset the search_performed flag
+                st.session_state.search_performed = False
 
             except Exception as e:
                 st.error(f"❌ Erreur lors de la récupération des informations du groupe : {str(e)}")
