@@ -1,5 +1,6 @@
 import streamlit as st
-
+from app.logo_image import get_car_brand_logo, get_image_as_base64
+import os
 
 
 def brands(manager):
@@ -13,6 +14,19 @@ def brands(manager):
         if brand:
             # Affichage des données brutes 
             st.markdown(f'## {brand[0]["cleanName"]["value"]}') 
+            logo_path = get_car_brand_logo(st.session_state.manufacturer, save_path='car_logos/logo_brand.jpg')
+            print(logo_path)
+
+            if logo_path and os.path.exists(logo_path):
+              base64_logo = get_image_as_base64(logo_path)
+              st.markdown(f"""
+              <div style="display: flex; align-items: center;">
+                  <div style="margin-left: 5px;">
+                      <img src="{base64_logo}" width="100">
+                  </div>
+              </div>
+              <br>
+              """, unsafe_allow_html=True)
 
             try:
                 if (brand[0]['description']['value'] != ""):

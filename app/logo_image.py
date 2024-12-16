@@ -2,6 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import wikipediaapi
 import os
+import base64
+
 
 def get_car_brand_logo(brand_name, save_path='car_logos/logo.jpg'):
     """
@@ -62,6 +64,12 @@ def get_car_brand_logo(brand_name, save_path='car_logos/logo.jpg'):
             return "Impossible de télécharger l'image."
     except Exception as e:
         return f"Erreur lors du téléchargement de l'image : {e}"
+    
+
+def get_image_as_base64(image_path):
+    with open(image_path, "rb") as img_file:
+        encoded_string = base64.b64encode(img_file.read()).decode()
+    return f"data:image/jpeg;base64,{encoded_string}"
 
 # Exemple d'utilisation
 if __name__ == "__main__":

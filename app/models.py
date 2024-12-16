@@ -24,6 +24,10 @@ def models(manager):
                         if 'image' in car:
                             st.image(car['image']['value'], use_container_width=True)
                         st.write(f"[Voir sur DBpedia]({car['car']['value']})")
+                        if st.button("Voir la page constructeur", key = f"manufacturer_{car['name']['value']}"):
+                            st.session_state.page = "Marques"
+                            st.session_state.search_performed = True
+                            st.rerun()
 
                         # Modèles similaires
                         if car['relatedCars']:

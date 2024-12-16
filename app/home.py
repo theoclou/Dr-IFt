@@ -1,13 +1,9 @@
 import streamlit as st
 import random
-from app.logo_image import get_car_brand_logo
+from app.logo_image import get_car_brand_logo, get_image_as_base64
 import os
-import base64
 
-def get_image_as_base64(image_path):
-    with open(image_path, "rb") as img_file:
-        encoded_string = base64.b64encode(img_file.read()).decode()
-    return f"data:image/jpeg;base64,{encoded_string}"
+
     
 # Page d'accueil
 def home(manager):
@@ -47,7 +43,12 @@ def home(manager):
                     key="manufacturer_suggestions"
                 )
                 if selected_manufacturer:
-                    st.write(f"**Modèles de {selected_manufacturer}:**")
+                    st.write(f"**Constructeur sélectionné :** {selected_manufacturer}")
+                    if st.button("Voir la page constructeur"):
+                        st.session_state.page = "Marques"
+                        st.session_state.search_performed = True
+                        st.session_state.manufacturer = selected_manufacturer
+                        st.rerun()
                     if st.button("Voir les modèles"):
                         st.session_state.page = "Modèles"
                         st.session_state.search_performed = True
