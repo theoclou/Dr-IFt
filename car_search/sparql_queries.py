@@ -55,7 +55,7 @@ class CarQueries:
                 
                 OPTIONAL {{
                     ?car dbo:productionStartYear ?year .
-                    FILTER (YEAR(?year) > 1800)
+                    FILTER (YEAR(?year) > 1940)
                 }}
                 
                 OPTIONAL {{
@@ -72,7 +72,7 @@ class CarQueries:
                 FILTER(lang(?name) = "en")
             }}
             ORDER BY DESC(?year)
-            LIMIT 50
+            LIMIT 40
         """
         return query
 
@@ -104,7 +104,7 @@ class CarQueries:
                 
                 FILTER(lang(?typeName) = "en" && str(?typeName) = "{typeRelated}" && lang(?name) = "en")
             }}
-            LIMIT 5
+            LIMIT 4
         """
 
     def get_car_details(self, car_uri):

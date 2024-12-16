@@ -56,7 +56,7 @@ def models(manager):
                                         # Afficher les informations du modèle similaire
                                         if related_details:
                                             st.write(f"**Nom :** {related_details.get('name', {}).get('value', 'Nom non disponible')}")
-                                            st.write(f"**Marque :** {related_details.get('manufacturer', {}).get('value', 'Inconnue')}")
+                                            st.write(f"**Marque :** {related_details.get('manufacturerName', {}).get('value', 'Inconnue')}")
                                             st.write(f"**Année de sortie :** {related_details.get('year', {}).get('value', 'Inconnue')}")
                                             st.write(f"**Description :** {related_details.get('description', {}).get('value', 'Aucune description disponible')}")
                                             if 'image' in related_details:
