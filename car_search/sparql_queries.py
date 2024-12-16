@@ -55,7 +55,7 @@ class CarQueries:
                 
                 OPTIONAL {{
                     ?car dbo:productionStartYear ?year .
-                    FILTER (YEAR(?year) > 1800)
+                    FILTER (YEAR(?year) > 1940)
                 }}
                 
                 OPTIONAL {{
@@ -72,7 +72,7 @@ class CarQueries:
                 FILTER(lang(?name) = "en")
             }}
             ORDER BY DESC(?year)
-            LIMIT 50
+            LIMIT 40
         """
         return query
 
