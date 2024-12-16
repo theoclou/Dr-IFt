@@ -234,25 +234,12 @@ class SparqlManager:
         sanitized_group = self.sanitize_input(group).replace(" ", "_")
         query = self.queries.search_founding_date(sanitized_group)
         results = self.execute_query(query)
-    
-    def get_brand_details(self, brand_uri):
-        query = self.brand_queries.get_brand_details_2(brand_uri)
-        return self.execute_query(query)
-    
-    def get_object_name(self, object_uri):
-        query = self.brand_queries.get_object_name(object_uri)
-        results = self.execute_query(query)
-        if results == []:
-            return object_uri.replace("_", " ")
-        print(results)
-        return results
         processed_results = [{
             "parentCompany": strip_dbpedia_prefix(result.get("parentCompany", {}).get("value", "N/A")),
             "foundingDate": strip_dbpedia_prefix(result.get("foundingDate", {}).get("value", "N/A"))
         } for result in results]
         return processed_results
-
-
+    
 
     def get_founder_of_group(self, group):
         if not group:
@@ -304,3 +291,20 @@ class SparqlManager:
             "owner": strip_dbpedia_prefix(result.get("owner", {}).get("value", "N/A"))
         } for result in results]
         return processed_results
+
+    ##########################################################
+    #################### Brand functions #####################
+    ##########################################################
+
+    
+    def get_brand_details(self, brand_uri):
+        query = self.brand_queries.get_brand_details_2(brand_uri)
+        return self.execute_query(query)
+    
+    def get_object_name(self, object_uri):
+        query = self.brand_queries.get_object_name(object_uri)
+        results = self.execute_query(query)
+        if results == []:
+            return object_uri.replace("_", " ")
+        print(results)
+        return results
