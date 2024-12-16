@@ -199,10 +199,11 @@ class SparqlManager:
         results = self.execute_query(query)
         processed_results = [{
             "name": strip_dbpedia_prefix(result["name"]["value"]),
+            "parentCompany": strip_dbpedia_prefix(result.get("parentCompany", {}).get("value", "N/A")),
             "manufacturer": strip_dbpedia_prefix(result.get("manufacturer", {}).get("value", "N/A")),
-            "parentCompany": strip_dbpedia_prefix(result.get("parentCompany", {}).get("value", "N/A"))
         } for result in results]
-        return processed_results
+        filtered_results = [entry for entry in processed_results if "N/A" not in entry.values()]
+        return filtered_results
 
     def get_parent_group_of_manufacturer(self, manufacturer):
         if not manufacturer:
@@ -211,10 +212,11 @@ class SparqlManager:
         query = self.queries.search_parent_group_of_manufacturer(sanitized_manufacturer)
         results = self.execute_query(query)
         processed_results = [{
+            "parentCompany": strip_dbpedia_prefix(result.get("parentCompany", {}).get("value", "N/A")),
             "manufacturer": strip_dbpedia_prefix(result.get("manufacturer", {}).get("value", "N/A")),
-            "parentCompany": strip_dbpedia_prefix(result.get("parentCompany", {}).get("value", "N/A"))
         } for result in results]
-        return processed_results
+        filtered_results = [entry for entry in processed_results if "N/A" not in entry.values()]
+        return filtered_results
 
     def get_country_of_group(self, group):
         if not group:
@@ -226,7 +228,8 @@ class SparqlManager:
             "parentCompany": strip_dbpedia_prefix(result.get("parentCompany", {}).get("value", "N/A")),
             "Country": strip_dbpedia_prefix(result.get("Country", {}).get("value", "N/A"))
         } for result in results]
-        return processed_results
+        filtered_results = [entry for entry in processed_results if "N/A" not in entry.values()]
+        return filtered_results
 
     def get_founding_date_of_group(self, group):
         if not group:
@@ -238,8 +241,8 @@ class SparqlManager:
             "parentCompany": strip_dbpedia_prefix(result.get("parentCompany", {}).get("value", "N/A")),
             "foundingDate": strip_dbpedia_prefix(result.get("foundingDate", {}).get("value", "N/A"))
         } for result in results]
-        return processed_results
-    
+        filtered_results = [entry for entry in processed_results if "N/A" not in entry.values()]
+        return filtered_results
 
     def get_founder_of_group(self, group):
         if not group:
@@ -251,8 +254,9 @@ class SparqlManager:
             "parentCompany": strip_dbpedia_prefix(result.get("parentCompany", {}).get("value", "N/A")),
             "founder": strip_dbpedia_prefix(result.get("founder", {}).get("value", "N/A"))
         } for result in results]
-        return processed_results
-
+        filtered_results = [entry for entry in processed_results if "N/A" not in entry.values()]
+        return filtered_results
+    
     def get_list_of_brands_of_group(self, group):
         if not group:
             return []
@@ -264,7 +268,8 @@ class SparqlManager:
             # "founder": strip_dbpedia_prefix(result.get("founder", {}).get("value", "N/A")),
             "brand": strip_dbpedia_prefix(result.get("brands", {}).get("value", "N/A"))
         } for result in results]
-        return processed_results
+        filtered_results = [entry for entry in processed_results if "N/A" not in entry.values()]
+        return filtered_results
 
     def get_revenue_of_group(self, group):
         if not group:
@@ -278,7 +283,8 @@ class SparqlManager:
             "revenue": result.get("revenue", {}).get("value", "N/A"),
             "revenueCurrency": strip_dbpedia_prefix(result.get("revenueCurrency", {}).get("value", "N/A"))
         } for result in results]
-        return processed_results
+        filtered_results = [entry for entry in processed_results if "N/A" not in entry.values()]
+        return filtered_results
 
     def get_investors_of_group(self, group):
         if not group:
@@ -290,8 +296,9 @@ class SparqlManager:
             "parentCompany": strip_dbpedia_prefix(result.get("parentCompany", {}).get("value", "N/A")),
             "owner": strip_dbpedia_prefix(result.get("owner", {}).get("value", "N/A"))
         } for result in results]
-        return processed_results
-
+        filtered_results = [entry for entry in processed_results if "N/A" not in entry.values()]
+        return filtered_results
+    
     ##########################################################
     #################### Brand functions #####################
     ##########################################################
